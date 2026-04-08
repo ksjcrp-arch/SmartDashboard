@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유가초 스마트 대시보드</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+</head>
+
+<body>
+    <div class="dashboard-grid">
+        <section class="empty-column">
+            <div class="card notice-card" style="position: relative; overflow: hidden;">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">notifications_active</span> 학년 공지사항</h4>
+                    <div class="header-btns">
+                        <button class="btn-detail-icon" onclick="fetchNotices()" title="새로고침">
+                            <span class="material-symbols-rounded">refresh</span>
+                        </button>
+                        <a href="https://docs.google.com/spreadsheets/d/1dmYldBPnWZPdrhTRnChuEiKo7C0-dlQ_m9JnACk4QLU/edit?gid=0#gid=0"
+                            target="_blank" class="btn-detail-icon">
+                            <span class="material-symbols-rounded">open_in_new</span>
+                        </a>
+                        <button class="btn-detail-icon" onclick="openNoticeModal()">
+                            <span class="material-symbols-rounded">edit_note</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="notice-display-area" class="notice-list">
+                    <p class="loading-text">공지사항을 불러오는 중...</p>
+                </div>
+
+                <div id="modal-notice" class="modal-overlay" style="position: absolute;">
+                    <div class="modal-content card small-modal">
+                        <h3 style="font-size: 1rem; margin-bottom: 10px;">📢 공지 입력</h3>
+                        <div class="inline-input-box">
+                            <input type="text" id="input-notice-text" placeholder="내용 입력">
+                            <div class="inline-btns">
+                                <button class="btn-confirm" onclick="submitNotice()">저장</button>
+                                <button class="btn-cancel" onclick="closeNoticeModal()">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="edu-column-1">
+            <div class="card timetable">
+                <div class="card-header">
+                    <div class="header-left">
+                        <h4>
+                            <span class="material-symbols-rounded">calendar_view_week</span>
+                            주간 시간표 <span id="selected-target-name"
+                                style="font-size: 0.8em; color: var(--accent); margin-left: 5px; opacity: 0.8;"></span>
+                        </h4>
+                    </div>
+                    <button class="btn-detail-icon"
+                        onclick="document.getElementById('modal-timetable').style.display='flex'">
+                        <span class="material-symbols-rounded">open_in_full</span>
+                    </button>
+                </div>
+
+                <div id="initial-selector" class="mini-selector-grid">
+                    <p class="selector-guide">학반 또는 전담과목을 선택하세요.</p>
+                    <div class="selector-group">
+                        <span class="selector-label">학년/반</span>
+                        <div class="mini-chips">
+                            <button class="m-chip" onclick="selectView('class', '6-1', this)">1</button>
+                            <button class="m-chip" onclick="selectView('class', '6-2', this)">2</button>
+                            <button class="m-chip" onclick="selectView('class', '6-3', this)">3</button>
+                            <button class="m-chip" onclick="selectView('class', '6-4', this)">4</button>
+                            <button class="m-chip" onclick="selectView('class', '6-5', this)">5</button>
+                            <button class="m-chip" onclick="selectView('class', '6-6', this)">6</button>
+                            <button class="m-chip" onclick="selectView('class', '6-7', this)">7</button>
+                            <button class="m-chip" onclick="selectView('class', '6-8', this)">8</button>
+                            <button class="m-chip" onclick="selectView('class', '6-9', this)">9</button>
+                            <button class="m-chip" onclick="selectView('class', '6-10', this)">10</button>
+                        </div>
+                    </div>
+                    <div class="selector-group">
+                        <span class="selector-label">교과 전담</span>
+                        <div class="mini-chips">
+                            <button class="m-chip" onclick="selectView('subject', '영어1', this)">영1</button>
+                            <button class="m-chip" onclick="selectView('subject', '영어2', this)">영2</button>
+                            <button class="m-chip" onclick="selectView('subject', '음악', this)">음악</button>
+                            <button class="m-chip" onclick="selectView('subject', '체육', this)">체육</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-mini-weekly" style="display: none; margin-top: 10px;">
+                    <table class="mini-weekly-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>월</th>
+                                <th>화</th>
+                                <th>수</th>
+                                <th>목</th>
+                                <th>금</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mini-weekly-tbody"></tbody>
+                    </table>
+                    <button class="btn-reschedule" onclick="resetTimetableSelection()"
+                        style="width:100%; margin-top:10px; font-size:11px; opacity:0.6; background:none; border:none; color:white; cursor:pointer;">
+                        ↻ 다른 학반 선택하기
+                    </button>
+                </div>
+            </div>
+
+            <div class="card todo-card">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">check_circle</span> 오늘의 할 일</h4>
+                    <button class="btn-add-launcher" onclick="toggleTodoInput()">
+                        <span class="material-symbols-rounded">add_circle</span>
+                    </button>
+                </div>
+                <div id="todo-input-box" class="inline-input-box" style="display: none; margin-bottom: 10px;">
+                    <input type="text" id="todo-text" placeholder="할 일을 입력하세요..."
+                        onkeypress="if(event.keyCode==13) {addTodo();}">
+                    <div class="inline-btns">
+                        <button class="btn-confirm" onclick="addTodo()">추가</button>
+                        <button class="btn-cancel" onclick="toggleTodoInput()">취소</button>
+                    </div>
+                </div>
+                <div id="todo-container" class="todo-list-container"></div>
+            </div>
+        </section>
+
+        <section class="edu-column-2">
+            <div class="card quick-launcher">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">rocket_launch</span> 퀵런처</h4>
+                    <button class="btn-add-launcher" onclick="toggleLauncherInput()">
+                        <span class="material-symbols-rounded">add_circle</span>
+                    </button>
+                </div>
+                <div id="launcher-input-box" class="inline-input-box" style="display: none; margin-bottom: 10px;">
+                    <input type="text" id="launcher-title" placeholder="사이트명">
+                    <input type="text" id="launcher-url" placeholder="https://...">
+                    <div class="inline-btns">
+                        <button class="btn-confirm" onclick="addNewLauncher()">추가</button>
+                        <button class="btn-cancel" onclick="toggleLauncherInput()">취소</button>
+                    </div>
+                </div>
+                <div id="launcher-container" class="launcher-grid"></div>
+            </div>
+
+            <div class="card calendar-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <h4 id="calendar-month-year">
+                            <span class="material-symbols-rounded">calendar_month</span>
+                            불러오는 중...
+                        </h4>
+                    </div>
+                    <div class="calendar-controls">
+                        <button onclick="changeMonth(-1)" class="btn-meal-nav"><span
+                                class="material-symbols-rounded">chevron_left</span></button>
+                        <button onclick="changeMonth(1)" class="btn-meal-nav"><span
+                                class="material-symbols-rounded">chevron_right</span></button>
+                    </div>
+                </div>
+                <div class="mini-calendar" id="calendar-grid">
+                    <div class="day-header sun">일</div>
+                    <div class="day-header">월</div>
+                    <div class="day-header">화</div>
+                    <div class="day-header">수</div>
+                    <div class="day-header">목</div>
+                    <div class="day-header">금</div>
+                    <div class="day-header sat">토</div>
+                </div>
+                <div id="monthly-event-list" class="calendar-list-modern"></div>
+            </div>
+        </section>
+
+        <aside class="info-column">
+            <div class="card settings-panel">
+                <div class="settings-group">
+                    <button class="btn-setting" title="테마 변경" onclick="toggleTheme()">
+                        <span class="material-symbols-rounded">palette</span>
+                    </button>
+                </div>
+                <div class="settings-divider"></div>
+                <div class="settings-group">
+                    <button class="btn-setting" title="설정 저장하기" onclick="openBackupModal()">
+                        <span class="material-symbols-rounded">cloud_sync</span>
+                    </button>
+                    <button class="btn-setting" title="레이아웃 설정" onclick="openSettingsModal()">
+                        <span class="material-symbols-rounded">settings</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="card info-summary">
+                <div class="info-split-container">
+                    <div class="info-left-zone">
+                        <div id="info-date" class="date-row">날짜 불러오는 중...</div>
+                        <div id="info-clock" class="digital-clock">00:00:00</div>
+                        <div class="weather-row">
+                            <span class="region-label">유가읍</span>
+                            <span id="info-weather-icon" class="material-symbols-rounded">partly_cloudy_day</span>
+                            <span id="info-temp">--°C</span>
+                        </div>
+                    </div>
+                    <div class="info-right-zone">
+                        <div class="dust-widget">
+                            <div id="info-dust" class="dust-data-box">불러오는 중...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card d-day-card">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">event_upcoming</span> 일정관리(D-Day)</h4>
+                    <button class="btn-add-dday" onclick="toggleDDayInput()">
+                        <span class="material-symbols-rounded">add_circle</span>
+                    </button>
+                </div>
+                <div id="inline-dday-input" class="inline-input-box" style="display: none;">
+                    <input type="text" id="dday-title" placeholder="일정명">
+                    <input type="text" id="dday-target-date" placeholder="날짜(8자리 예:20260723)" maxlength="8">
+                    <div class="inline-btns">
+                        <button class="btn-confirm" onclick="addNewDDay()">확인</button>
+                        <button class="btn-cancel" onclick="toggleDDayInput()">취소</button>
+                    </div>
+                </div>
+                <div id="dday-container" class="d-day-list"></div>
+            </div>
+
+            <div class="card meal-card">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">restaurant</span> 식단표</h4>
+                    <div class="meal-controls">
+                        <button class="btn-meal-nav" onclick="changeMealDate(-1)"><span
+                                class="material-symbols-rounded">chevron_left</span></button>
+                        <span id="meal-display-date">-----</span>
+                        <button class="btn-meal-nav" onclick="changeMealDate(1)"><span
+                                class="material-symbols-rounded">chevron_right</span></button>
+                    </div>
+                </div>
+                <div id="meal-content" class="meal-list-container">
+                    <p id="meal-text">메뉴를 불러오는 중입니다...</p>
+                    <div class="meal-extra-info">
+                        <span>🔥 <strong id="meal-calories">0</strong> kcal</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div id="modal-timetable" class="modal-overlay">
+        <div class="modal-content card">
+            <div class="modal-header-vertical">
+                <div class="modal-top-row">
+                    <h2>📅 주간 시간표 조회</h2>
+                    <button class="btn-close" onclick="document.getElementById('modal-timetable').style.display='none'">
+                        <span class="material-symbols-rounded">close</span>
+                    </button>
+                </div>
+
+                <div class="class-filter-container">
+                    <div class="filter-group">
+                        <span class="filter-label">학년/반</span>
+                        <div id="class-chips" class="filter-buttons">
+                            <button class="chip" onclick="selectView('class', '6-1', this)">6-1</button>
+                            <button class="chip" onclick="selectView('class', '6-2', this)">6-2</button>
+                            <button class="chip" onclick="selectView('class', '6-3', this)">6-3</button>
+                            <button class="chip" onclick="selectView('class', '6-4', this)">6-4</button>
+                            <button class="chip" onclick="selectView('class', '6-5', this)">6-5</button>
+                            <button class="chip" onclick="selectView('class', '6-6', this)">6-6</button>
+                            <button class="chip" onclick="selectView('class', '6-7', this)">6-7</button>
+                            <button class="chip" onclick="selectView('class', '6-8', this)">6-8</button>
+                            <button class="chip" onclick="selectView('class', '6-9', this)">6-9</button>
+                            <button class="chip" onclick="selectView('class', '6-10', this)">6-10</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="filter-label">교과 전담</span>
+                        <div id="subject-chips" class="filter-buttons">
+                            <button class="chip" onclick="selectView('subject', '영어1', this)">영어1</button>
+                            <button class="chip" onclick="selectView('subject', '영어2', this)">영어2</button>
+                            <button class="chip" onclick="selectView('subject', '음악', this)">음악</button>
+                            <button class="chip" onclick="selectView('subject', '체육', this)">체육</button>
+                            <button class="chip" onclick="selectView('subject', '강사', this)">강사</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weekly-table-wrapper">
+                <table class="weekly-table">
+                    <thead>
+                        <tr>
+                            <th>교시</th>
+                            <th>월</th>
+                            <th>화</th>
+                            <th>수</th>
+                            <th>목</th>
+                            <th>금</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weekly-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-event" class="modal-overlay">
+        <div class="modal-content card small-modal">
+            <div class="modal-header-vertical">
+                <div class="modal-top-row">
+                    <h2 id="event-modal-title">일정 관리</h2>
+                    <button class="btn-close" onclick="closeEventModal()"><span
+                            class="material-symbols-rounded">close</span></button>
+                </div>
+            </div>
+            <div class="inline-input-box">
+                <input type="text" id="input-event-desc" placeholder="일정 내용을 입력하세요">
+                <div class="inline-btns">
+                    <button id="btn-save-event" class="btn-confirm">저장</button>
+                    <button id="btn-del-event" class="btn-cancel" style="display:none; background:#ff4b5c;">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-backup" class="modal-overlay">
+        <div class="modal-content card backup-modal" style="max-width:350px;">
+            <div class="modal-header">
+                <h4 style="margin:0;"><span class="material-symbols-rounded">cloud_done</span> 대시보드 백업</h4>
+                <button class="btn-close"
+                    style="background:none; border:none; color:white; font-size:20px; cursor:pointer;"
+                    onclick="closeBackupModal()">×</button>
+            </div>
+            <div class="modal-body" style="padding-top:15px;">
+                <p style="font-size:0.9rem; line-height:1.5;">현재 설정(퀵런처, 투두, 디데이 등)을<br>개인 구글 드라이브에 안전하게 저장합니다.</p>
+                <div id="auth-status-box" style="margin-top:20px;">
+                    <button id="btn-google-auth" class="btn-google-login" onclick="handleGoogleSignIn()"
+                        style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; background:white; color:#444; border-radius:8px; cursor:pointer; font-weight:bold;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+                            width="18"> Google 계정으로 로그인
+                    </button>
+                </div>
+                <div id="backup-action-box" style="display:none; margin-top:20px;">
+                    <p class="user-info-text">
+                        <span id="user-email" style="color:var(--accent); font-weight:bold;"></span>님,
+                        개별 구글드라이브 '대시보드_설정' 폴더를 사용합니다.
+                    </p>
+
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn-secondary-load" onclick="downloadDataFromDrive()"
+                            style="flex: 1; padding: 12px; background: none; color: var(--accent); border: 2px solid var(--accent); border-radius: 8px; font-weight: bold; cursor: pointer;">
+                            설정 불러오기
+                        </button>
+
+                        <button class="btn-primary-save" onclick="uploadDataToDrive()"
+                            style="flex: 1; padding: 12px; background: var(--accent); color: var(--btn-text); border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                            지금 저장하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

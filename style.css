@@ -1,0 +1,1544 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+/* style.css - 테마 변수 수정 및 추가 */
+
+/* [Theme 1] 다크 골드 (기본값) */
+:root[data-theme="dark"] {
+    --bg-glass: rgba(0, 0, 0, 0.5);
+    --accent: #FFD54F; /* 골드 노란색 */
+    --accent-hover: #FFA000;
+    --text: #E0E0E0;
+    --btn-text: #000000;
+    --card-border: rgba(255, 255, 255, 0.1);
+    --bg-image: url('https://picsum.photos/id/116/1920/1080'); /* 어두운 야경 */
+}
+
+/* [Theme 2] 네이비 글래스 (차분한 느낌) */
+:root[data-theme="navy"] {
+    --bg-glass: rgba(15, 23, 42, 0.7);
+    --accent: #38bdf8; /* 스카이 블루 */
+    --accent-hover: #0ea5e9;
+    --text: #f8fafc;
+    --btn-text: #ffffff;
+    --card-border: rgba(56, 189, 248, 0.2);
+    --bg-image: url('https://picsum.photos/id/102/1920/1080'); /* 시원한 바다/하늘 */
+}
+
+/* [Theme 3] 그린 포레스트 (눈이 편안한 느낌) */
+:root[data-theme="forest"] {
+    --bg-glass: rgba(20, 31, 25, 0.75);
+    --accent: #4ade80; /* 에메랄드 그린 */
+    --accent-hover: #22c55e;
+    --text: #ecfdf5;
+    --btn-text: #064e3b;
+    --card-border: rgba(74, 222, 128, 0.2);
+    --bg-image: url('https://picsum.photos/id/10/1920/1080'); /* 숲/자연 */
+}
+
+/* [Theme 4] 라벤더 핑크 (세련되고 몽환적인 느낌) */
+:root[data-theme="pink"] {
+    --bg-glass: rgba(45, 30, 45, 0.65); /* 어두운 보라빛이 감도는 딥 핑크 배경 */
+    --accent: #f472b6; /* 화사한 라이트 핑크 포인트 */
+    --accent-hover: #db2777;
+    --text: #fdf2f8; /* 아주 연한 핑크색 텍스트 (가독성 최상) */
+    --btn-text: #ffffff;
+    --card-border: rgba(244, 114, 182, 0.25);
+    /* 📍 배경화면: 몽환적인 노을이나 새벽녘의 핑크빛 하늘 이미지 */
+    --bg-image: url('https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=1920&auto=format&fit=crop'); 
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
+
+body {
+    width: 100vw; height: 100vh; overflow: hidden; color: var(--text);
+    background: url('https://picsum.photos/1920/1080') no-repeat center center / cover;
+    font-size: calc(12px + 0.4vw);
+}
+
+/* 📐 2. 메인 그리드 레이아웃 */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5vw;
+    height: 100vh;
+    padding: 3vh 2vw 60px 2vw; /* 하단 패딩을 60px로 넉넉히 설정 */
+    box-sizing: border-box; /* 패딩이 전체 높이에 포함되도록 설정 */
+}
+/* style.css 수정 */
+
+.empty-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    pointer-events: auto; /* 아이콘 클릭이 가능하도록 auto로 설정 */
+}
+
+/* 📍 0열의 공지사항 카드를 하단에 고정하는 스타일 */
+.empty-column .notice-card {
+    /* 기존 스타일 유지 */
+    display: flex;
+    flex-direction: column;
+    
+    /* [수정] 아래의 마진 탑 속성을 추가하여 상단 공간을 자동으로 밀어냅니다. */
+    margin-top: auto; 
+    
+    min-height: 250px; /* 공지사항 카드 높이 조절 */
+}
+
+.notice-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* 2, 3열 하단 맞춤 유지 */
+.edu-column-2 > .card:last-child,
+.info-column > .card:last-child {
+    flex: 1;
+}
+
+/* 1열의 시간표가 아래까지 꽉 차게 하고 싶다면 추가 */
+.edu-column-1 .timetable {
+    flex: 1;
+}
+
+/* 💎 3. 공통 카드 및 버튼 스타일 */
+.card {
+    width: 100%; background: var(--bg-glass);
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px; padding: 1.2vw;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+/* 🏷️ 카드 헤더 정렬 */
+.card-header {
+    display: flex;
+    justify-content: space-between; /* 제목은 왼쪽, 버튼은 오른쪽 */
+    align-items: center;
+    margin-bottom: 1.5vh;
+}
+
+.card-header h4 {
+    margin: 0;                 /* 제목 기본 여백 제거 */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    white-space: nowrap;       /* 제목 줄바꿈 방지 */
+}
+
+/* 오른쪽 상단 설정 패널 정렬 */
+.settings-panel {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px !important;
+    width: fit-content; /* 내용물 크기에 맞춤 */
+    margin-left: auto;   /* 오른쪽 끝으로 밀기 */
+}
+
+.settings-group {
+    display: flex;
+    gap: 5px;
+}
+/* 개별 설정 버튼 스타일 */
+.btn-setting {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.btn-setting:hover {
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 1;
+    transform: translateY(-1px);
+}
+
+.btn-setting .material-symbols-rounded {
+    font-size: 1.2rem;
+}
+/* 세로 구분선 */
+.settings-divider {
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 0 5px;
+}
+.settings-panel button, .btn-detail, .chip {
+    cursor: pointer; transition: 0.2s; border: none;
+}
+/* 🔍 개선된 아이콘형 자세히 버튼 */
+.btn-detail-icon {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+/* 🏷️ 헤더 왼쪽 그룹 (제목 + 탭) */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* 📂 내부 탭 버튼 스타일 */
+.timetable-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px;
+    border-radius: 6px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.3s;
+    pointer-events: auto; /* 클릭 차단 방지 */
+}
+
+.tab-btn.active {
+    background: var(--accent);
+    color: var(--btn-text);
+    opacity: 1;
+    font-weight: bold;
+}
+/* 교과시간표-------------------------------------------------------------- */
+
+/* 🖱️ 카드 내 미니 선택기 스타일 */
+.mini-selector-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 5px;
+    animation: fadeIn 0.4s ease;
+}
+
+.selector-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.selector-label {
+    font-size: 0.7rem;
+    color: var(--accent);
+    opacity: 0.8;
+    font-weight: 600;
+}
+
+.mini-chips {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 5열 배치 */
+    gap: 4px;
+}
+
+.m-chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    font-size: 0.75rem;
+    padding: 6px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.m-chip:hover {
+    background: var(--accent);
+    color: var(--btn-text);
+}
+
+.m-chip.active {
+    background: var(--accent);
+    color: var(--btn-text);
+    font-weight: bold;
+}
+/* 📦 컨텐츠 전환 애니메이션 */
+.timetable-content {
+    display: none; /* 기본 숨김 */
+    animation: fadeIn 0.3s ease;
+}
+#view-weekly {
+    display: none; /* 처음에 주간 시트는 숨김 */
+}
+
+#view-today {
+    display: block; /* 처음에 오늘 시트는 보임 */
+}
+
+.timetable-content.active {
+    display: block; /* 선택된 것만 보임 */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 📅 미니 주간 시간표 (글자 작게!) */
+.mini-weekly-table {
+    table-layout: fixed;
+    width: 100%;
+    font-size: 0.8rem; /* 아주 작게 설정 */
+    text-align: center;
+    border-spacing: 1px;
+}
+
+.mini-weekly-table th, .mini-weekly-table td {
+    padding: 4px 2px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mini-weekly-table th { color: var(--accent); font-weight: normal; }
+/* 추가로 td 스타일 내에 강제 지정된 색상이 있다면 아래와 같이 보정합니다 */
+.mini-weekly-table td {
+    color: var(--text) !important; /* 모든 과목 텍스트를 흰색으로 강제 */
+}
+
+
+
+
+.btn-detail-icon .material-symbols-rounded {
+    font-size: 1.1rem; /* 아이콘 크기 최적화 */
+    opacity: 0.8;
+}
+
+.btn-detail-icon:hover {
+    background: var(--accent); /* 호버 시 테마색으로 반전 */
+    color: var(--btn-text);
+    border-color: var(--accent);
+    transform: scale(1.1); /* 살짝 커지는 효과 */
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.btn-detail-icon:active {
+    transform: scale(0.95);
+}
+
+
+/* 🚀 퀵런처 전용 스타일---------------------------------------------------- */
+.quick-launcher {
+    margin-bottom: 0; /* 캘린더와의 간격 조절 */
+}
+
+.launcher-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4열 배치 */
+    gap: 10px;
+}
+/* ➕ 헤더 내 추가 버튼 */
+.btn-add-launcher {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-add-launcher:hover { transform: scale(1.2); }
+
+/* ❌ 삭제 버튼 초기 상태: 보이지 않음 */
+.btn-del-launcher {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 16px !important;
+    color: var(--accent); /* 📍 1단계: 버튼에 마우스 올리면 나타날 노란색 */
+    opacity: 0;           /* 평소엔 투명 */
+    transform: scale(0.5); /* 작게 축소된 상태 */
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 튕기는 느낌의 애니메이션 */
+    cursor: pointer;
+    z-index: 10;
+}
+/* 📍 2단계: 퀵런처 버튼 전체(launch-item)에 마우스 올렸을 때 */
+.launch-item:hover .btn-del-launcher {
+    opacity: 0.7;          /* 노란색으로 은은하게 등장 */
+    transform: scale(1);   /* 원래 크기로 */
+}
+/* 📍 3단계: 삭제 버튼(X) 자체에 마우스가 올라갔을 때 */
+.btn-del-launcher:hover {
+    opacity: 1 !important;
+    color: #ff4b5c !important; /* 🔥 선명한 빨간색으로 변경 */
+    transform: scale(1.2) !important; /* 조금 더 커지며 강조 */
+}
+
+/* 기본 버튼(나이스 등)에도 삭제 버튼이 들어갈 공간 확보 */
+.launch-item {
+    position: relative; 
+    overflow: hidden; /* 아이콘이 삐져나가지 않게 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-decoration: none;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 5px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.launch-item .material-symbols-rounded {
+    font-size: 1.8rem;
+    color: var(--accent); /* 포인트 컬러 적용 */
+}
+
+.launch-item span:not(.material-symbols-rounded) {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* 호버 효과 */
+.launch-item:hover {
+    background: rgba(255, 213, 79, 0.15);
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.launch-item:active {
+    transform: scale(0.95);
+}
+
+
+
+
+/* 📅 5. 달력 디자인----------------------------------------------------- */
+.mini-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 📍 무조건 7칸으로 나눔 */
+    gap: 2px; /* 칸 사이 간격 */
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.05); /* 전체 테두리 */
+}
+.day-header {
+    background-color: rgba(255, 255, 255, 0.05); /* 은은한 배경 */
+    font-size: 0.75rem;
+    padding: 8px 0;
+    font-weight: bold;
+    color: var(--text); /* 평일 요일 색상 */
+}
+.day-header.sun { color: #ff6b6b; }
+.day-header.sat { color: #4dabf7; }
+.day {
+    aspect-ratio: 1 / 1; /* ✅ 정사각형 유지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s;
+    color: var(--text); /* 평일 날짜 색상 */
+}
+/* 🟥 일요일 (헤더 & 날짜) */
+.sun, .mini-calendar .day:nth-child(7n+1) { 
+    color: #ff6b6b !important; /* 선명한 빨강 */
+}
+
+/* 🟦 토요일 (헤더 & 날짜) */
+.sat, .mini-calendar .day:nth-child(7n) { 
+    color: #4dabf7 !important; /* 선명한 파랑 */
+}
+/* 📍 기타 날짜 스타일 (유지) */
+.day:hover:not(.empty) { background-color: rgba(255, 213, 79, 0.1); }
+.day.empty { cursor: default; } /* 빈칸 */
+.day.active { background-color: var(--accent); color: var(--btn-text) !important; font-weight: bold; border-radius: 5px; } /* 오늘 */
+.day.event { border: 1px solid rgba(255, 255, 255, 0.3); color: var(--accent); }
+.day.event::after {
+    content: '';
+    position: absolute;      /* 📍 부모인 .day를 기준으로 위치 고정 */
+    bottom: 6px;             /* 날짜 숫자 아래에서 6px 위로 배치 */
+    left: 50%;               /* 가로 중앙으로 보냄 */
+    transform: translateX(-50%); /* 정확한 가로 정렬 보정 */
+    width: 5px;              /* 점 크기 */
+    height: 5px;
+    background-color: var(--accent); /* 부장님이 정하신 노란색 */
+    border-radius: 50%;      /* 동그라미 모양 */
+    box-shadow: 0 0 5px var(--accent); /* 은은한 발광 효과 */
+}
+/* 📍 캘린더 카드에 기준점 설정 */
+.calendar-card {
+    position: relative; /* 자식인 모달이 이 카드를 기준으로 뜹니다 */
+    overflow: hidden;   /* 모달이 카드 밖으로 삐져나가지 않게 차단 */
+}
+/* 📅 캘린더 컨트롤 버튼 한 줄 배열 */
+.calendar-controls {
+    display: flex;       /* 가로 정렬 시작 */
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 8px;           /* 버튼 사이 간격 */
+}
+
+/* 버튼 크기 및 간격 미세 조정 */
+.calendar-controls .btn-meal-nav {
+    padding: 2px;       /* 버튼 클릭 영역 확보 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 📍 캘린더 헤더 내 제목과 버튼 배치 */
+.card-header {
+    display: flex;
+    justify-content: space-between; /* 제목은 왼쪽, 버튼은 오른쪽 */
+    align-items: center;
+}
+
+
+
+
+
+/* 🕒 4. 시계 및 정보 섹션-------------------------------------------------- */
+/* 🕒 시계 전체 컨테이너 */
+.digital-clock {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    
+    /* 테마 색상은 유지하되, 번지는 효과를 완전히 제거합니다 */
+    color: var(--accent); 
+    
+    /* 📍 뿌연 효과(text-shadow)를 삭제하여 글자를 또렷하게 만듭니다. */
+    text-shadow: none; 
+    
+    /* 만약 글자가 배경색에 묻혀서 안 보인다면 아래처럼 아주 얇은 그림자만 추천합니다. */
+    /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); */
+
+    opacity: 1; /* 투명도를 1로 올려 더 선명하게 표시 */
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px;
+    font-weight: 800; /* 글자를 더 두껍게 하여 가독성 확보 */
+    transition: color 0.5s ease;
+}
+
+/* 1. 정보를 좌우로 나누는 컨테이너 */
+.info-split-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 2. 좌측 그룹 설정 */
+.info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* 왼쪽 정렬 */
+    flex: 1;
+}
+/* 📍 좌측 영역: 전체의 2/3 차지 */
+.info-left-zone {
+    flex: 2; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* 👈 좌측 정렬(flex-start)에서 중앙 정렬로 변경 */
+    text-align: center;
+}
+
+/* 📍 우측 영역: 전체의 1/3 차지 */
+.info-right-zone {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+/* 3. 시계 크기 조절 (요청하신 대로 약간 축소) */
+.clock-main {
+    font-size: 2.6rem; /* 기존보다 살짝 줄임 */
+    font-weight: 800;
+    line-height: 1.1;
+}
+.clock-seconds {
+    font-size: 1.2rem;
+    opacity: 0.6;
+}
+/* 📍 지역명 스타일 */
+.region-label {
+    font-size: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 5px;
+    font-weight: 600;
+    color: var(--accent); /* 포인트 컬러 사용 */
+}
+
+/* 🌤️ 날씨 줄 */
+.weather-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    gap: 5px;
+}
+
+/* 4. 날짜 및 날씨 미세 조정 */
+.date-row { font-size: 0.85rem; opacity: 0.8; margin-bottom: 2px; }
+.weather-row { margin-top: 5px; font-size: 0.9rem; }
+
+
+/* --- 인포그리드 세로 압축 디자인 --- */
+
+.info-summary { 
+    padding: 1.2vw !important; /* 전체 카드 패딩 축소 */
+}
+/* --- 미세먼지 제안 1 보정 디자인 (박스 제거 버전) --- */
+
+.dust-widget {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 중앙 정렬 */
+    gap: 8px; /* 요소 간 간격 축소 */
+    background: transparent;
+    border: none;
+}
+
+/* [주의] 등급별 배경색 정의도 모두 투명하게 변경하여 박스를 제거합니다. */
+.dust-widget[data-grade="좋음"] { background: transparent; border: none; }
+.dust-widget[data-grade="보통"] { background: transparent; border: none; }
+.dust-widget[data-grade="나쁨"] { background: transparent; border: none; }
+.dust-widget[data-grade="매우나쁨"] { background: transparent; border: none; }
+
+/* 아이콘과 등급 정보를 가로로 배치하여 높이 절약 */
+.air-header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 가로 중앙 정렬 */
+    gap: 12px;
+}
+
+.air-icon-box {
+    background: rgba(255, 255, 255, 0.1);
+    width: 38px; /* 크기 약간 축소 */
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.air-status-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left; /* 텍스트는 왼쪽 정렬 */
+}
+
+.air-label { font-size: 0.75rem; opacity: 0.7; }
+.air-grade-val { font-size: 1.2rem; font-weight: 800; line-height: 1.1; }
+
+/* 하단 수치 박스 배경은 유지 (글라스모피즘 스타일) */
+/* 수치 박스 높이 압축 */
+.air-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 6px 4px; /* 패딩 최소화 */
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.air-item { text-align: center; }
+.air-item-label { font-size: 0.65rem; opacity: 0.5; margin-bottom: 1px; }
+.air-item-val { font-size: 0.95rem; font-weight: 700; }
+.air-unit { font-size: 0.6rem; opacity: 0.5; margin-left: 2px; }
+
+.dust-title {
+    font-size: 0.5rem;
+    opacity: 0.6;
+    margin-bottom: 3px;
+}
+
+.dust-data-box {
+    line-height: 1.2;
+}
+
+/* 📍 등급(좋음 등) 글자 크기 */
+.dust-status {
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: block; /* 줄바꿈 강제 */
+    margin-bottom: 2px;
+}
+
+.dust-detail {
+    font-size: 0.7rem;
+    opacity: 0.5;
+    display: block;
+}
+/* 5. 우측 그룹 (미세먼지 전용 박스) */
+.info-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 100px;
+}
+
+.dust-card-mini {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.dust-label {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-bottom: 3px;
+}
+
+.dust-content {
+    font-size: 0.85rem;
+    line-height: 1.3;
+}
+/* 🌬️ 미세먼지 등급별 색상 가이드 */
+.status-good { color: #4ade80; font-weight: bold; }    /* 초록색 */
+.status-normal { color: #facc15; font-weight: bold; }  /* 노란색 */
+.status-bad { color: #fb923c; font-weight: bold; }     /* 주황색 */
+
+/* 시계 가독성 향상 */
+.digital-clock {
+    font-family: 'JetBrains Mono', monospace; /* 숫자가 변해도 너비가 고정되는 폰트 추천 */
+    letter-spacing: 2px;
+}
+
+
+
+
+
+
+
+
+/* 🖼️ 6. 모달 및 주간 시간표 (가장 중요한 부분) */
+/* 📍 캘린더 전용 삽입형 모달 */
+#modal-event.modal-overlay {
+    position: absolute;  /* fixed에서 absolute로 변경하여 카드 내부에 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* 배경 흐림 효과를 카드 안으로 한정 */
+    backdrop-filter: blur(8px);
+    z-index: 100;        /* 캘린더 숫자들보다 위에 표시 */
+    display: none;       /* 평소엔 숨김 */
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px; /* 카드 모서리와 맞춤 */
+}
+/* 모달 내부 박스 크기 조정 */
+#modal-event .small-modal {
+    width: 90% !important;
+    max-width: none;
+    padding: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);
+    display: none; justify-content: center; align-items: center; z-index: 9999;
+}
+.modal-content { width: 80%; max-width: 900px; animation: modal-fade 0.3s ease-out; }
+@keyframes modal-fade { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* 2. 필터 컨테이너: 은은한 카드 느낌 */
+.class-filter-container {
+    background: rgba(255, 255, 255, 0.03); /* 아주 투명하게 */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2vh;
+    border-radius: 16px;
+    margin-bottom: 2.5vh;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column; /* 라벨을 버튼 위로 배치하여 시독성 향상 */
+    gap: 10px;
+    margin-bottom: 1.5vh;
+}
+
+.filter-group:last-child { margin-bottom: 0; }
+
+.filter-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    opacity: 0.8;
+    margin-left: 5px;
+}
+
+/* 3. 칩 버튼: 더 입체적이고 세련되게 */
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px 14px;
+    border-radius: 10px; /* 약간 덜 둥근 세련된 사각형 */
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chip:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* 활성화된 칩: 네온 효과 추가 */
+.chip.active {
+    background: var(--accent);
+    color: var(--btn-text);
+    font-weight: 700;
+    border-color: var(--accent);
+    box-shadow: 0 4px 15px rgba(255, 213, 79, 0.3); /* 테마색에 맞춘 그림자 */
+}
+
+
+/* 🎨 모달 상단 헤더 및 필터 영역 세련되게 개선 */
+
+/* 1. 헤더 레이아웃: 제목과 닫기 버튼 정렬 */
+.modal-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5vh;
+}
+
+.modal-top-row h2 {
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.5px;
+}
+/* 닫기 버튼: 우측 상단으로 깔끔하게 배치 */
+.btn-close {
+    background: rgba(255, 255, 255, 0.1);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-close:hover {
+    background: #ff4b5c; /* 호버 시 붉은색 포인트 */
+    transform: rotate(90deg);
+}
+
+.calendar-list-modern {
+    margin-top: 15px;
+    padding: 10px 5px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: 150px; /* 일정 많을 때 대비 */
+    overflow-y: auto;
+}
+
+.event-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px 0;
+    font-size: 0.85rem;
+}
+
+.event-date {
+    color: var(--accent); /* 부장님의 노란 포인트 색상 */
+    font-weight: bold;
+    min-width: 45px;
+}
+
+.event-desc {
+    color: var(--text);
+    text-shadow: none; /* 가독성을 위해 발광 제거 */
+}
+
+
+
+
+
+/* 📊 주간 시간표 - 면 분할 디자인 (선 제거 버전) */
+
+.weekly-table-wrapper {
+    max-height: 60vh;
+    overflow: auto;
+    background-color: #1a1a1a; /* 기본 테이블 배경 */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.weekly-table {
+    width: 100%;
+    border-collapse: separate; 
+    border-spacing: 0;
+    table-layout: fixed;
+    text-align: center;
+}
+
+/* 1. 윗줄 (요일 헤더: 월~금) */
+.weekly-table thead th {
+    position: sticky;
+    top: 0;
+    /* 🎨 요일 칸은 약간 밝은 회색 계열로 구분 */
+    background-color: #2c2c2c !important; 
+    z-index: 100;
+    padding: 10px 5px;
+    color: var(--accent); /* 글자색은 강조색 유지 */
+    font-weight: 700;
+    border: none; /* 노란 선 제거 */
+}
+
+/* 2. 왼쪽 줄 (교시 인덱스: 1~7) */
+.weekly-table tbody td:first-child {
+    position: sticky;
+    left: 0;
+    /* 🎨 교시 칸은 요일보다 조금 더 어두운 계열로 차별화 */
+    background-color: #222222 !important;
+    z-index: 50; 
+    color: var(--accent);
+    font-weight: bold;
+    border: none;
+}
+
+/* 3. 🔥 왼쪽 위 모서리 '교시' 칸 */
+.weekly-table thead th:first-child {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 200 !important;
+    /* 🎨 모서리는 가장 강조되도록 테마색이나 별도 색상 지정 */
+    background-color: #333333 !important; 
+    color: #ffffff;
+    border: none;
+}
+
+/* 4. 실제 과목이 들어가는 칸들 */
+.weekly-table td {
+    padding: 10px 5px;
+    background-color: transparent; /* 기본 배경 유지 */
+    color: rgba(255, 255, 255, 0.8);
+    /* 칸 사이의 아주 은은한 구분선만 남김 (선택 사항) */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
+}
+
+/* 행 전체에 마우스를 올렸을 때 하이라이트 */
+.weekly-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* 교시 칸 너비 고정 */
+.weekly-table th:first-child,
+.weekly-table td:first-child {
+    width: 70px;
+    min-width: 70px;
+}
+/* 투두리스트--------------------------------------------------------- */
+/* --- 투두리스트 전용 스타일 --- */
+
+.todo-card {
+    flex: 1; /* 1열의 남은 공간을 모두 차지하여 하단 라인을 맞춤 */
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.todo-list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    animation: fadeIn 0.3s ease;
+}
+
+.todo-item-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.todo-content {
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+
+/* 완료 상태 스타일 */
+.todo-item.completed .todo-content {
+    text-decoration: line-through;
+    opacity: 0.4;
+}
+
+.todo-item.completed .check-icon {
+    color: var(--accent);
+}
+
+.btn-del-todo {
+    color: #ff4b5c;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.btn-del-todo:hover { opacity: 1; }
+
+
+
+/* 학년공지사항---------------------------------------------------------- */
+
+.notice-card {
+    margin-top: auto; /* 상단 여백을 자동으로 채워 카드를 아래로 밀어냄 */
+    min-height: 250px; /* 부장님이 원하는 적정 높이로 조절하세요 */
+}
+
+.notice-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+/* style.css */
+@keyframes fadeInNotice {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.notice-item {
+    display: block; /* 가로 정렬(flex) 대신 블록 레이아웃 사용 */
+    padding: 8px 12px; /* 좌우 여백을 주어 가독성 향상 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+.notice-item:hover {
+    background: rgba(255, 255, 255, 0.03); /* 마우스 올렸을 때 은은한 효과 */
+}
+
+.notice-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text);
+    word-break: keep-all; /* 단어 단위로 줄바꿈하여 가독성 유지 */
+    margin: 0;
+}
+
+.loading-text, .empty-text {
+    text-align: center;
+    opacity: 0.5;
+    font-size: 0.85rem;
+    padding: 20px 0;
+}
+/* style.css - 학년 공지사항 헤더 아이콘 가로 배치 수정 */
+
+/* 1. 아이콘 감싸는 컨테이너 가로 정렬 */
+.card-header .header-btns {
+    display: flex;
+    flex-direction: row; /* 가로 방향 정렬 (기본값이므로 생략 가능하나 명시) */
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 8px; /* 아이콘 사이의 간격 */
+    margin-left: auto; /* 제목 오른쪽 끝으로 밀기 */
+}
+
+/* 2. 각 아이콘 버튼 스타일 (크기 및 간격 최적화) */
+.card-header .btn-detail-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;  /* 버튼 크기 약간 축소 */
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s ease;
+    padding: 0; /* 내부 패딩 제거 */
+}
+
+/* 3. 아이콘 폰트 크기 및 색상 조정 (선택 사항) */
+.card-header .btn-detail-icon span.material-symbols-rounded {
+    font-size: 1.2rem; /* 아이콘 크기 살짝 키움 */
+    opacity: 0.8;
+}
+
+/* 4. 마우스 호버 효과 유지 */
+.card-header .btn-detail-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+/* style.css - 카드 내부 삽입형 모달 스타일 */
+
+/* 1. 모달 배경: 부모 카드를 기준으로 전체를 덮음 */
+#modal-notice.modal-overlay {
+    position: absolute; /* fixed에서 absolute로 변경 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* 카드 안쪽만 어둡게 */
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px; /* 카드의 곡률과 일치 */
+}
+
+/* 2. 모달 내부 콘텐츠 박스 */
+#modal-notice .small-modal {
+    width: 90% !important; /* 카드 너비에 맞춰 조절 */
+    padding: 15px;
+    background: var(--bg-glass);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* 3. 입력창 스타일 압축 */
+#modal-notice .inline-input-box {
+    margin-bottom: 0;
+    padding: 10px;
+}
+
+#modal-notice input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+
+/* -----------------------------디데이--------------------------------- */
+
+/* 📋 디데이 카드 전체 설정 */
+.d-day-card {
+    display: flex;
+    flex-direction: column;
+    /* ❗ 카드의 최대 높이를 적절히 제한합니다. (급식 그리드 높이에 맞춰 조절) */
+    max-height: 40vh; 
+    overflow: hidden; /* 전체가 삐져나오지 않게 차단 */
+}
+/* 📜 디데이 리스트 영역 (여기가 핵심!) */
+.d-day-list {
+    flex: 1; /* 남은 공간을 차지 */
+    overflow-y: auto; /* 내용이 많아지면 세로 스크롤 생성 */
+    padding-right: 5px; /* 스크롤바와 겹치지 않게 여백 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 🎨 스크롤바 세련되게 꾸미기 (선택 사항) */
+.d-day-list::-webkit-scrollbar {
+    width: 4px;
+}
+.d-day-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+.d-day-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+.d-day-list::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* 📋 디데이 아이템 레이아웃 최적화 */
+.d-day-item {
+    display: flex;
+    justify-content: space-between; /* 좌측 정보와 우측 숫자를 양 끝으로 배치 */
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 15px;
+    border-radius: 12px;
+    position: relative; /* 삭제 버튼 위치 기준 */
+    transition: all 0.3s ease;
+}
+
+.d-day-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* 🏷️ 왼쪽 일정 정보 영역 */
+.d-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.d-label {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.d-date {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* 🔢 오른쪽 D-Day 숫자 및 삭제 버튼 그룹 */
+.d-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; /* 우측 정렬 */
+    min-width: 60px; /* 공간 확보 */
+}
+
+.d-count {
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 1.1rem;
+    transition: opacity 0.2s ease;
+}
+
+/* ➕ 추가/삭제 버튼 디자인 */
+.btn-add-dday {
+    background: none; border: none; color: var(--accent);
+    cursor: pointer; transition: 0.2s;
+}
+.btn-add-dday:hover { transform: scale(1.2); }
+
+/* 🗑️ 삭제 버튼 (평소엔 숨김) */
+.btn-del-dday {
+    position: absolute;
+    right: 0;
+    background: none;
+    border: none;
+    color: #ff4b5c;
+    cursor: pointer;
+    opacity: 0; /* 평소엔 투명 */
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+}
+/* 호버 시 숫자 숨기고 삭제 버튼 노출 */
+.d-day-item:hover .d-count {
+    opacity: 0; /* 숫자는 사라짐 */
+}
+
+.d-day-item:hover .btn-del-dday {
+    opacity: 1; /* 삭제 아이콘 등장 */
+    transform: scale(1.1);
+}
+/* 🔥 마우스를 올렸을 때의 변화 */
+.d-day-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* ⌨️ 디데이 삽입형 입력창 세련된 디자인 */
+.inline-input-box {
+    background: rgba(255, 255, 255, 0.05); /* 아주 투명한 배경 */
+    border: 1px solid rgba(255, 213, 79, 0.3); /* 강조색 은은한 테두리 */
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2); /* 안쪽으로 깊이감 부여 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+/* 입력 필드 (텍스트, 숫자) */
+.inline-input-box input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2); /* 어두운 투명 배경 */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #ffffff;
+    text-align: left !important;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.inline-input-box input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: white;
+    font-family: 'Pretendard', sans-serif; /* 폰트 일치 */
+    font-size: 0.9rem;
+    appearance: none; /* 브라우저 기본 스타일 초기화 (일부 효과) */
+    -webkit-appearance: none;
+}
+/* 입력창 포커스 시 효과 */
+.inline-input-box input:focus {
+    border-color: var(--accent);
+    background: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 8px rgba(255, 213, 79, 0.2);
+}
+
+/* 가이드 글자(Placeholder) 색상 */
+.inline-input-box input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+}
+
+/* 하단 버튼 그룹 */
+.inline-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.inline-btns button {
+    flex: 1;
+    height: 38px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+/* ⌨️ 입력창 전용 스타일 */
+.small-modal {
+    max-width: 400px !important;
+}
+#input-event-desc {
+    margin-top: 10px;
+    width: 100%;
+}
+.small-modal input {
+    width: 100%; padding: 10px; margin: 10px 0;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; color: white;
+}
+
+.modal-btns { display: flex; gap: 10px; margin-top: 10px; }
+.btn-confirm {
+    background: var(--accent);
+    color: var(--btn-text);
+}
+.btn-confirm:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+/* 취소 버튼 */
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#dday-target-date {
+    width: 100%;
+    max-width: 220px; /* 8자리와 가이드 문구가 다 보이도록 약간 넓게 */
+    text-align: center;
+    letter-spacing: 1px; /* 숫자 간격을 넓혀 가독성 향상 */
+}
+
+/* ----------------------------------------------------------------- */
+
+/* ------------------------------급식-------------------------------- */
+/* 🍱 급식 카드 헤더 - 간격 조절 */
+.meal-card .card-header {
+    display: flex;
+    justify-content: flex-start; /* 왼쪽부터 차례로 배치 */
+    align-items: center;
+    gap: 15px; /* 👈 '식단표'와 '컨트롤러' 사이를 살짝 띄웁니다 */
+}
+/* 🍱 날짜 컨트롤러 - 더 컴팩트한 버전 */
+.meal-controls {
+    display: flex;
+    align-items: center;
+    padding: 1px 4px; /* 📏 상하좌우 여백을 최소화하여 길이를 줄임 */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 3px; /* 내부 화살표와 날짜 사이 간격도 축소 */
+}
+
+#meal-display-date {
+    font-size: 0.72rem; /* 글자 크기를 아주 미세하게 더 축소 */
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 68px; /* 📏 날짜가 깨지지 않는 선에서 최소 너비로 고정 */
+    text-align: center;
+    letter-spacing: -0.6px; /* 글자 사이 간격을 좁혀 가로 폭 축소 */
+}
+
+.btn-meal-nav {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0; /* 버튼 자체 여백 제거 */
+}
+.btn-meal-nav .material-symbols-rounded {
+    font-size: 1rem; /* 화살표 아이콘 크기도 컴팩트하게 조절 */
+    opacity: 0.6;
+}
+.btn-meal-nav:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+/* 🍱 메뉴 텍스트 영역 */
+.meal-list-container {
+    padding: 10px 0;
+    min-height: 100px;
+}
+
+#meal-text {
+    line-height: 1.6;
+    font-size: 1rem;
+    word-break: keep-all;
+}
+
+.meal-extra-info {
+    margin-top: 15px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 8px;
+}
+
+/* ----------------------------------------------------------------- */
+
+/* 기타 공통 스타일 */
+.special { background: rgba(255, 213, 79, 0.15); border-radius: 4px; padding: 2px 6px; color: var(--accent); font-weight: bold; }
+h4 { border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 10px; }
+.material-symbols-rounded { vertical-align: middle; }
+
+
+/* 2. 모든 열(0~3열)이 세로로 꽉 차도록 설정 */
+.empty-column, .edu-column-1, .edu-column-2, .info-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+    height: 100%; /* 부모 높이를 다 씀 */
+}
+
+/* 3. 각 열의 마지막 카드를 바닥까지 늘림 */
+.edu-column-1 > .card:last-child,
+.edu-column-2 > .card:last-child,
+.info-column > .card:last-child {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* 4. 카드 내부의 리스트 영역이 늘어난 공간을 채우고 스크롤되도록 설정 */
+.notice-list, 
+.todo-list-container, 
+#monthly-event-list, 
+.meal-list-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.backup-modal {
+    width: 320px;
+    text-align: center;
+}
+
+.btn-google-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    background: white;
+    color: #444;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.btn-primary-save {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: var(--btn-text);
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.user-info-text {
+    margin: 15px 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* style.css - 백업 모달 레이어 보정 */
+
+#modal-backup.modal-overlay {
+    position: fixed; /* absolute가 아닌 fixed로 설정하여 전체 화면을 덮음 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7); /* 배경 어둡게 */
+    backdrop-filter: blur(5px);
+    z-index: 10000; /* 모든 요소보다 위에 배치 */
+    display: none; /* 기본 숨김 */
+    justify-content: center;
+    align-items: center;
+}
+
+/* 모달 내부 박스가 투명해지지 않도록 배경색 강제 */
+#modal-backup .small-modal {
+    background: var(--bg-glass) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    padding: 25px;
+}
