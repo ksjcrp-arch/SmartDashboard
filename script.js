@@ -1743,15 +1743,21 @@ function initGoogleAuth() {
     if (typeof google === 'undefined') return;
     
     tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID, // 📍 변수명을 직접 사용하도록 수정
+        client_id: CLIENT_ID,
         scope: SCOPES,
         callback: (response) => {
             if (response.access_token) {
                 accessToken = response.access_token;
+                
+                // [수정] 로그인 성공 시 UI 전환을 확실하게 처리
                 document.getElementById('auth-status-box').style.display = 'none';
                 document.getElementById('backup-action-box').style.display = 'block';
+                
+                // 이메일 안내 텍스트 업데이트
                 const emailSpan = document.getElementById('user-email');
-                if(emailSpan) emailSpan.innerText = "안내 ";
+                if(emailSpan) emailSpan.innerText = "인증 완료! ";
+                
+                console.log("구글 인증 성공");
             }
         },
     });
