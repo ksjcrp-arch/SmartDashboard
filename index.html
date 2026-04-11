@@ -8,51 +8,17 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
     <link rel="stylesheet" href="style.css">
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 
 <body>
     <div class="dashboard-grid">
-        <section class="empty-column">
-            <div class="card notice-card" style="position: relative; overflow: hidden;">
-                <div class="card-header">
-                    <h4><span class="material-symbols-rounded">notifications_active</span> 학년 공지사항</h4>
-                    <div class="header-btns">
-                        <button class="btn-detail-icon" onclick="fetchNotices()" title="새로고침">
-                            <span class="material-symbols-rounded">refresh</span>
-                        </button>
-                        <a href="https://docs.google.com/spreadsheets/d/1dmYldBPnWZPdrhTRnChuEiKo7C0-dlQ_m9JnACk4QLU/edit?gid=0#gid=0"
-                            target="_blank" class="btn-detail-icon">
-                            <span class="material-symbols-rounded">open_in_new</span>
-                        </a>
-                        <button class="btn-detail-icon" onclick="openNoticeModal()">
-                            <span class="material-symbols-rounded">edit_note</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="notice-display-area" class="notice-list">
-                    <p class="loading-text">공지사항을 불러오는 중...</p>
-                </div>
-
-                <div id="modal-notice" class="modal-overlay" style="position: absolute;">
-                    <div class="modal-content card small-modal">
-                        <h3 style="font-size: 1rem; margin-bottom: 10px;">📢 공지 입력</h3>
-                        <div class="inline-input-box">
-                            <input type="text" id="input-notice-text" placeholder="내용 입력">
-                            <div class="inline-btns">
-                                <button class="btn-confirm" onclick="submitNotice()">저장</button>
-                                <button class="btn-cancel" onclick="closeNoticeModal()">취소</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <section class="empty-column column" id="col-1">
+            
         </section>
 
-        <section class="edu-column-1">
-            <div class="card timetable">
+        <section class="edu-column-1 column" id="col-2">
+            <div class="card timetable" id="card-timetable">
                 <div class="card-header">
                     <div class="header-left">
                         <h4>
@@ -133,10 +99,44 @@
                 </div>
                 <div id="todo-container" class="todo-list-container"></div>
             </div>
+            <div class="card notice-card" style="position: relative; overflow: hidden;">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">notifications_active</span> 학년 공지사항</h4>
+                    <div class="header-btns">
+                        <button class="btn-detail-icon" onclick="fetchNotices()" title="새로고침">
+                            <span class="material-symbols-rounded">refresh</span>
+                        </button>
+                        <a href="https://docs.google.com/spreadsheets/d/1dmYldBPnWZPdrhTRnChuEiKo7C0-dlQ_m9JnACk4QLU/edit?gid=0#gid=0"
+                            target="_blank" class="btn-detail-icon">
+                            <span class="material-symbols-rounded">open_in_new</span>
+                        </a>
+                        <button class="btn-detail-icon" onclick="openNoticeModal()">
+                            <span class="material-symbols-rounded">edit_note</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="notice-display-area" class="notice-list">
+                    <p class="loading-text">공지사항을 불러오는 중...</p>
+                </div>
+
+                <div id="modal-notice" class="modal-overlay" style="position: absolute;">
+                    <div class="modal-content card small-modal">
+                        <h3 style="font-size: 1rem; margin-bottom: 10px;">📢 공지 입력</h3>
+                        <div class="inline-input-box">
+                            <input type="text" id="input-notice-text" placeholder="내용 입력">
+                            <div class="inline-btns">
+                                <button class="btn-confirm" onclick="submitNotice()">저장</button>
+                                <button class="btn-cancel" onclick="closeNoticeModal()">취소</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section class="edu-column-2">
-            <div class="card quick-launcher">
+        <section class="edu-column-2 column" id="col-3">
+            <div class="card quick-launcher" id="card-quick-launcher">
                 <div class="card-header">
                     <h4><span class="material-symbols-rounded">rocket_launch</span> 퀵런처</h4>
                     <button class="btn-add-launcher" onclick="toggleLauncherInput()">
@@ -182,44 +182,65 @@
             </div>
         </section>
 
-        <aside class="info-column">
-            <div class="card settings-panel">
-                <div class="settings-group">
-                    <button class="btn-setting" title="테마 변경" onclick="toggleTheme()">
-                        <span class="material-symbols-rounded">palette</span>
-                    </button>
+        <aside class="info-column column" id="col-4">
+            <div class="card info-summary" id="card-info">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">schedule</span> 실시간 정보</h4>
+                    <div class="settings-group">
+                        <button class="btn-setting-mini" title="테마 변경" onclick="toggleTheme()">
+                            <span class="material-symbols-rounded">palette</span>
+                        </button>
+                        <button class="btn-setting-mini" title="배경 변경" onclick="changeRandomBackground()">
+                            <span class="material-symbols-rounded">wallpaper</span>
+                        </button>
+                        <button class="btn-setting-mini" title="백업 및 복구" onclick="openBackupModal()">
+                            <span class="material-symbols-rounded">save_as</span>
+                        </button>
+                        <!-- <button class="btn-setting-mini" id="btn-edit-mode" title="그리드 편집" onclick="toggleEditMode()">
+                            <span class="material-symbols-rounded">settings</span>
+                        </button> -->
+                    </div>
                 </div>
-                <div class="settings-divider"></div>
-                <div class="settings-group">
-                    <button class="btn-setting" title="설정 저장하기" onclick="openBackupModal()">
-                        <span class="material-symbols-rounded">cloud_sync</span>
-                    </button>
-                    <button class="btn-setting" title="레이아웃 설정" onclick="openSettingsModal()">
-                        <span class="material-symbols-rounded">settings</span>
-                    </button>
-                </div>
-            </div>
 
-            <div class="card info-summary">
-                <div class="info-split-container">
+                <div class="info-main-wrapper" style="margin-top: 15px;">
                     <div class="info-left-zone">
                         <div id="info-date" class="date-row">날짜 불러오는 중...</div>
-                        <div id="info-clock" class="digital-clock">00:00:00</div>
+                        <div id="info-clock" class="digital-clock">00:00<span class="seconds">:00</span></div>
                         <div class="weather-row">
                             <span class="region-label">유가읍</span>
                             <span id="info-weather-icon" class="material-symbols-rounded">partly_cloudy_day</span>
                             <span id="info-temp">--°C</span>
                         </div>
                     </div>
-                    <div class="info-right-zone">
-                        <div class="dust-widget">
-                            <div id="info-dust" class="dust-data-box">불러오는 중...</div>
+                    <div class="info-right-group">
+                        <div id="info-dust" class="dust-widget">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card d-day-card">
+            <div class="card meal-card" id="card-meal">
+                <div class="card-header">
+                    <h4><span class="material-symbols-rounded">restaurant</span> 식단표</h4>
+                    <div class="meal-controls">
+                        <button class="btn-meal-nav" onclick="changeMealDate(-1)">
+                            <span class="material-symbols-rounded">chevron_left</span>
+                        </button>
+                        <span id="meal-display-date">-----</span>
+                        <button class="btn-meal-nav" onclick="changeMealDate(1)">
+                            <span class="material-symbols-rounded">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="meal-content" class="meal-list-container">
+                    <p id="meal-text">메뉴를 불러오는 중입니다...</p>
+                    <div class="meal-extra-info">
+                        <span>🔥 <strong id="meal-calories">0</strong> kcal</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card d-day-card" id="card-dday">
                 <div class="card-header">
                     <h4><span class="material-symbols-rounded">event_upcoming</span> 일정관리(D-Day)</h4>
                     <button class="btn-add-dday" onclick="toggleDDayInput()">
@@ -235,25 +256,6 @@
                     </div>
                 </div>
                 <div id="dday-container" class="d-day-list"></div>
-            </div>
-
-            <div class="card meal-card">
-                <div class="card-header">
-                    <h4><span class="material-symbols-rounded">restaurant</span> 식단표</h4>
-                    <div class="meal-controls">
-                        <button class="btn-meal-nav" onclick="changeMealDate(-1)"><span
-                                class="material-symbols-rounded">chevron_left</span></button>
-                        <span id="meal-display-date">-----</span>
-                        <button class="btn-meal-nav" onclick="changeMealDate(1)"><span
-                                class="material-symbols-rounded">chevron_right</span></button>
-                    </div>
-                </div>
-                <div id="meal-content" class="meal-list-container">
-                    <p id="meal-text">메뉴를 불러오는 중입니다...</p>
-                    <div class="meal-extra-info">
-                        <span>🔥 <strong id="meal-calories">0</strong> kcal</span>
-                    </div>
-                </div>
             </div>
         </aside>
     </div>
@@ -292,7 +294,6 @@
                             <button class="chip" onclick="selectView('subject', '영어2', this)">영어2</button>
                             <button class="chip" onclick="selectView('subject', '음악', this)">음악</button>
                             <button class="chip" onclick="selectView('subject', '체육', this)">체육</button>
-                            <button class="chip" onclick="selectView('subject', '강사', this)">강사</button>
                         </div>
                     </div>
                 </div>
@@ -310,8 +311,7 @@
                             <th>금</th>
                         </tr>
                     </thead>
-                    <tbody id="weekly-tbody">
-                    </tbody>
+                    <tbody id="weekly-tbody"></tbody>
                 </table>
             </div>
         </div>
@@ -339,42 +339,36 @@
     <div id="modal-backup" class="modal-overlay">
         <div class="modal-content card backup-modal" style="max-width:350px;">
             <div class="modal-header">
-                <h4 style="margin:0;"><span class="material-symbols-rounded">cloud_done</span> 대시보드 백업</h4>
+                <h4 style="margin:0;"><span class="material-symbols-rounded">save_as</span> 설정 백업 및 복구</h4>
                 <button class="btn-close"
                     style="background:none; border:none; color:white; font-size:20px; cursor:pointer;"
                     onclick="closeBackupModal()">×</button>
             </div>
             <div class="modal-body" style="padding-top:15px;">
-                <p style="font-size:0.9rem; line-height:1.5;">현재 설정(퀵런처, 투두, 디데이 등)을<br>개인 구글 드라이브에 안전하게 저장합니다.</p>
-                <div id="auth-status-box" style="margin-top:20px;">
-                    <button id="btn-google-auth" class="btn-google-login" onclick="handleGoogleSignIn()"
-                        style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:12px; background:white; color:#444; border-radius:8px; cursor:pointer; font-weight:bold;">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-                            width="18"> Google 계정으로 로그인
-                    </button>
-                </div>
-                <div id="backup-action-box" style="display:none; margin-top:20px;">
-                    <p class="user-info-text">
-                        <span id="user-email" style="color:var(--accent); font-weight:bold;"></span>님,
-                        개별 구글드라이브 '대시보드_설정' 폴더를 사용합니다.
-                    </p>
+                <p style="font-size:0.9rem; line-height:1.5; color:#e0e0e0;">
+                    현재 대시보드 설정(퀵런처, 투두, 디데이 등)을<br>파일로 내보내거나, 백업 파일을 불러옵니다.
+                </p>
 
-                    <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button class="btn-secondary-load" onclick="downloadDataFromDrive()"
+                <div id="backup-action-box" style="margin-top:20px;">
+                    <input type="file" id="file-input" style="display:none;" accept=".json"
+                        onchange="importSettingsFromFile(event)">
+
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-secondary-load" onclick="document.getElementById('file-input').click()"
                             style="flex: 1; padding: 12px; background: none; color: var(--accent); border: 2px solid var(--accent); border-radius: 8px; font-weight: bold; cursor: pointer;">
-                            설정 불러오기
+                            파일 불러오기
                         </button>
 
-                        <button class="btn-primary-save" onclick="uploadDataToDrive()"
+                        <button class="btn-primary-save" onclick="exportSettingsToFile()"
                             style="flex: 1; padding: 12px; background: var(--accent); color: var(--btn-text); border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                            지금 저장하기
+                            파일로 저장하기
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <div id="toast-container" class="toast-container"></div>
     <script src="script.js"></script>
 </body>
 
