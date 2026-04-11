@@ -14,7 +14,7 @@
 <body>
     <div class="dashboard-grid">
         <section class="empty-column column" id="col-1">
-            
+
         </section>
 
         <section class="edu-column-1 column" id="col-2">
@@ -337,39 +337,30 @@
     </div>
 
     <div id="modal-backup" class="modal-overlay">
-        <div class="modal-content card backup-modal" style="max-width:350px;">
-            <div class="modal-header">
-                <h4 style="margin:0;"><span class="material-symbols-rounded">save_as</span> 설정 백업 및 복구</h4>
-                <button class="btn-close"
-                    style="background:none; border:none; color:white; font-size:20px; cursor:pointer;"
-                    onclick="closeBackupModal()">×</button>
+        <div class="small-modal backup-modal">
+            <h3>설정 백업 및 복구</h3>
+            <p class="user-info-text">구글 계정에 연결하여 어디서든 설정을 동기화하세요.</p>
+
+            <button id="btn-google-login" class="btn-google-login" onclick="handleAuthClick()">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Reference_Icon.svg" width="18"
+                    alt="G">
+                Google 계정으로 로그인
+            </button>
+
+            <div id="google-auth-status" style="display:none; margin-top:10px;">
+                <p id="user-email" style="font-size:0.8rem; opacity:0.7;"></p>
+                <button class="btn-primary-save" onclick="uploadConfigToDrive()">구글 드라이브에 즉시 저장</button>
+                <button class="btn-cancel" onclick="handleSignoutClick()">로그아웃</button>
             </div>
-            <div class="modal-body" style="padding-top:15px;">
-                <p style="font-size:0.9rem; line-height:1.5; color:#e0e0e0;">
-                    현재 대시보드 설정(퀵런처, 투두, 디데이 등)을<br>파일로 내보내거나, 백업 파일을 불러옵니다.
-                </p>
 
-                <div id="backup-action-box" style="margin-top:20px;">
-                    <input type="file" id="file-input" style="display:none;" accept=".json"
-                        onchange="importSettingsFromFile(event)">
-
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-secondary-load" onclick="document.getElementById('file-input').click()"
-                            style="flex: 1; padding: 12px; background: none; color: var(--accent); border: 2px solid var(--accent); border-radius: 8px; font-weight: bold; cursor: pointer;">
-                            파일 불러오기
-                        </button>
-
-                        <button class="btn-primary-save" onclick="exportSettingsToFile()"
-                            style="flex: 1; padding: 12px; background: var(--accent); color: var(--btn-text); border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                            파일로 저장하기
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <button class="btn-close-modal" onclick="closeBackupModal()">닫기</button>
         </div>
     </div>
     <div id="toast-container" class="toast-container"></div>
     <script src="script.js"></script>
+
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>F
 </body>
 
 </html>

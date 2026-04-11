@@ -627,13 +627,32 @@ function initTheme() {
 function openBackupModal() { document.getElementById('modal-backup').style.display = 'flex'; }
 function closeBackupModal() { document.getElementById('modal-backup').style.display = 'none'; }
 
+// script.js 내 exportSettingsToFile 함수 보정
 function exportSettingsToFile() {
-    const config = { data: JSON.parse(localStorage.getItem('yuga_dashboard_v1')), theme: localStorage.getItem('yuga_dashboard_theme'), exportedAt: new Date().toLocaleString() };
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const localData = localStorage.getItem('yuga_dashboard_v1');
+    const themeData = localStorage.getItem('yuga_dashboard_theme');
+    
+    const fullConfig = {
+        data: JSON.parse(localData),
+        theme: themeData,
+        exportedAt: new Date().toLocaleString()
+    };
+
+    let fileName = `yuga_backup_${new Date().toISOString().slice(0, 10)}.json`;
+
+    const blob = new Blob([JSON.stringify(fullConfig, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `yuga_backup_${new Date().toISOString().slice(0,10)}.json`;
-    link.click();
+    
+    link.href = url;
+    link.download = fileName;
+    
+    // 📍 라이블리 월페이퍼 환경을 위한 보정
+    document.body.appendChild(link); // 링크를 문서에 실제 추가
+    link.click();                    // 클릭 트리거
+    document.body.removeChild(link);  // 클릭 후 즉시 제거
+    
+    URL.revokeObjectURL(url);
 }
 
 function importSettingsFromFile(event) {
@@ -749,3 +768,90 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchNotices();
     setInterval(fetchNotices, 10000);
 });
+
+/* --------------------------------------------------------------------------
+   ☁️ Google Drive API 동기화 로직
+   -------------------------------------------------------------------------- */
+
+// 📍 구글 클라우드 콘솔에서 발급받은 정보 입력
+const CLIENT_ID = '619592639514-bm34n0vpghcfjlhnq11lfj8hihom8n2p.apps.googleusercontent.com';
+const API_KEY = 'AIzaSyC7STFo1mlxn4SzZTQcHtppXDY0vVeQVZw';
+const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+
+// script.js 상단 혹은 적절한 위치에 추가
+function gapiLoaded() {
+    gapi.load('client', async () => {
+        await gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+        });
+        gapiInited = true;
+        console.log("GAPI 초기화 완료"); // 확인용
+    });
+}
+
+function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: '', 
+    });
+    gisInited = true;
+    console.log("GIS 초기화 완료"); // 확인용
+}
+
+/**
+ * 🔐 구글 드라이브에 설정 파일 업로드
+ */
+async function uploadConfigToDrive() {
+    const localData = localStorage.getItem('yuga_dashboard_v1'); //
+    const themeData = localStorage.getItem('yuga_dashboard_theme');
+    const content = JSON.stringify({ data: JSON.parse(localData), theme: themeData });
+    
+    const fileMetadata = {
+        'name': 'yuga_dashboard_config.json',
+        'mimeType': 'application/json'
+    };
+
+    const blob = new Blob([content], { type: 'application/json' });
+    const formData = new FormData();
+    formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+    formData.append('file', blob);
+
+    try {
+        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token }),
+            body: formData
+        });
+        
+        if (response.ok) {
+            showToast("구글 드라이브 백업 완료!");
+        }
+    } catch (err) {
+        console.error("업로드 실패:", err);
+    }
+}
+
+// 기존 saveToGoogleDrive 이름을 handleAuthClick으로 변경
+async function handleAuthClick() {
+    if (!gapiInited || !gisInited) {
+        showToast("구글 API 라이브러리가 로드 중입니다. 잠시 후 다시 시도해 주세요.");
+        return;
+    }
+
+    tokenClient.callback = async (resp) => {
+        if (resp.error !== undefined) throw (resp);
+        // ... 실제 저장 로직 ...
+        await uploadConfigToDrive(); 
+    };
+
+    // 토큰이 없으면 팝업 요청, 있으면 바로 실행
+    if (gapi.client.getToken() === null) {
+        tokenClient.requestAccessToken({prompt: 'consent'});
+    } else {
+        tokenClient.requestAccessToken({prompt: ''});
+    }
+}
