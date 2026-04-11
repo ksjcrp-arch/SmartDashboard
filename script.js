@@ -99,6 +99,11 @@ function loadAllFromLocal() {
  */
 function toggleLauncherInput() {
     const box = document.getElementById('launcher-input-box');
+    // 📍 닫힐 때(창이 열려있는 상태에서 누를 때) 입력 필드 초기화
+    if (box.style.display !== 'none') {
+        document.getElementById('launcher-title').value = '';
+        document.getElementById('launcher-url').value = '';
+    }
     box.style.display = (box.style.display === 'none') ? 'block' : 'none';
 }
 
@@ -274,6 +279,11 @@ function updateEventData(dateKey, desc) {
  */
 function toggleDDayInput() {
     const inputField = document.getElementById('inline-dday-input');
+    // 📍 닫힐 때 입력 필드 초기화
+    if (inputField.style.display !== 'none') {
+        document.getElementById('dday-title').value = "";
+        document.getElementById('dday-target-date').value = "";
+    }
     inputField.style.display = (inputField.style.display === 'none') ? 'block' : 'none';
 }
 
@@ -355,7 +365,11 @@ async function submitNotice() {
 }
 
 function openNoticeModal() { document.getElementById('modal-notice').style.display = 'flex'; }
-function closeNoticeModal() { document.getElementById('modal-notice').style.display = 'none'; }
+function closeNoticeModal() {
+    // 📍 닫을 때 입력 필드 초기화
+    document.getElementById('input-notice-text').value = '';
+    document.getElementById('modal-notice').style.display = 'none';
+}
 
 let cachedSheetData = null; 
 let lastSheetName = "";
@@ -500,7 +514,12 @@ function highlightCurrentPeriod() {
  */
 function toggleTodoInput() {
     const box = document.getElementById('todo-input-box');
+    // 📍 닫힐 때 입력 필드 초기화
+    if (box.style.display !== 'none') {
+        document.getElementById('todo-text').value = '';
+    }
     box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+    if (box.style.display === 'block') document.getElementById('todo-text').focus();
 }
 
 function addTodo() {
