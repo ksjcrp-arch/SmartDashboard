@@ -1251,8 +1251,15 @@ async function loadConfigFromSharedDrive() {
 }
 
 // [script.js 하단]
-const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbzTWsWwXUTJCmtImP31wxtm6WaPPxZaUvKFoPSTHtNX-3lB_L_A5TAaLOOqhDpw5_av/exec";
+const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbzRJ7rPYf6i_hL9eW3nqhJRs-OBft7anja0FFKvCswVcmh3pd1w49gmeB5Wdp0Tv_16/exec";
 
+/**
+ * 🔒 [저장] 아이디 중복 체크 및 데이터 암호화 저장
+ * @param {boolean} isOverlapCheck - true일 경우 중복 무시하고 덮어쓰기
+ */
+/**
+ * 🔒 [저장] 아이디 중복 엄격 체크 버전
+ */
 async function encryptAndSaveToCloud() {
     const id = document.getElementById('save-id').value.trim();
     const pw1 = document.getElementById('save-pw1').value;
@@ -1261,34 +1268,39 @@ async function encryptAndSaveToCloud() {
     if (!id || !pw1) return alert("아이디와 비밀번호를 모두 입력하세요.");
     if (pw1 !== pw2) return alert("비밀번호 재확인이 일치하지 않습니다.");
 
-    showToast("데이터 암호화 및 클라우드 전송 중...");
+    showToast("아이디 사용 가능 여부 확인 중...");
 
     try {
         const localData = localStorage.getItem('yuga_dashboard_v1');
         const themeData = localStorage.getItem('yuga_dashboard_theme');
-        const rawContent = JSON.stringify({
-            data: JSON.parse(localData || '{}'),
-            theme: themeData
-        });
+        const rawContent = JSON.stringify({ data: JSON.parse(localData || '{}'), theme: themeData });
 
-        // 사용자가 입력한 비밀번호(pw1)로 AES 암호화
         const encrypted = CryptoJS.AES.encrypt(rawContent, pw1).toString();
 
         const res = await fetch(CLOUD_API_URL, {
             method: 'POST',
-            body: JSON.stringify({ mode: 'save', userId: id, content: encrypted })
+            body: JSON.stringify({ 
+                mode: 'save', 
+                userId: id, 
+                content: encrypted,
+                force: false // 📍 여기를 무조건 false로 고정하여 중복 체크 강제
+            })
         });
 
         const result = await res.text();
+
+        if (result === "EXISTS") {
+            // 📍 '205'가 이미 있으므로 이 메시지가 떠야 정상입니다.
+            alert(`'${id}'는 이미 등록된 아이디입니다.\n본인의 데이터라면 '불러오기'를 이용하시거나, 다른 아이디를 사용해 주세요.`);
+            return; 
+        } 
+        
         if (result === "SUCCESS") {
-            showToast("안전하게 암호화하여 저장하였습니다! ✅");
+            showToast("새로운 아이디로 안전하게 저장되었습니다! ✅");
             closeBackupModal();
-        } else {
-            throw new Error("서버 응답 오류");
         }
-    } catch (e) {
-        console.error(e);
-        alert("저장 실패: " + e.message);
+    } catch (e) { 
+        alert("통신 오류가 발생했습니다."); 
     }
 }
 
