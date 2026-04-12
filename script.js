@@ -457,6 +457,7 @@ function renderWeeklyTable(data) {
  * ⏰ 요일별 시정을 반영한 현재 교시 하이라이트 기능
  */
 function highlightCurrentPeriod() {
+    // const now = new Date(2026, 3, 13, 10, 0, 0);
     const now = new Date();
     const day = now.getDay(); // 0(일) ~ 6(토)
 
@@ -1041,6 +1042,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     renderCalendar();
     fetchNotices();
     setInterval(fetchNotices, 10000);
+    setInterval(highlightCurrentPeriod, 60000);
 
     // ✨ 자동 로그인 복구 핵심 로직
     ; // 라이브러리 안정화를 위해 2초 후 실행
