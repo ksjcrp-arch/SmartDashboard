@@ -1260,6 +1260,9 @@ const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbzRJ7rPYf6i_hL9eW
 /**
  * 🔒 [저장] 아이디 중복 엄격 체크 버전
  */
+/**
+ * 🔒 [저장] 아이디 중복 시 비밀번호가 맞으면 업데이트, 틀리면 차단
+ */
 async function encryptAndSaveToCloud() {
     const id = document.getElementById('save-id').value.trim();
     const pw1 = document.getElementById('save-pw1').value;
@@ -1268,54 +1271,86 @@ async function encryptAndSaveToCloud() {
     if (!id || !pw1) return alert("아이디와 비밀번호를 모두 입력하세요.");
     if (pw1 !== pw2) return alert("비밀번호 재확인이 일치하지 않습니다.");
 
-    showToast("아이디 사용 가능 여부 확인 중...");
+    showToast("아이디 권한 확인 중...");
 
     try {
+        // 1단계: 기존에 해당 아이디로 저장된 파일이 있는지 목록 확인
+        const listRes = await fetch(CLOUD_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ mode: 'list', userId: id })
+        });
+        const files = await listRes.json();
+
+        // 2단계: 파일이 이미 존재한다면 '비밀번호 검증' 절차 수행
+        if (files.length > 0) {
+            const fileId = files[0].id;
+            
+            // 기존 파일 내용을 가져옴
+            const readRes = await fetch(CLOUD_API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ mode: 'read', fileId: fileId })
+            });
+            const oldEncryptedData = await readRes.text();
+
+            // 입력한 비밀번호로 복호화 시도 (비밀번호 맞는지 확인)
+            try {
+                const bytes = CryptoJS.AES.decrypt(oldEncryptedData.trim(), pw1);
+                const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+                
+                if (!decryptedStr) throw new Error("PW_FAIL");
+                // 복호화 성공 시, 본인 확인 완료된 것으로 간주하고 진행
+            } catch (e) {
+                alert(`'${id}'는 이미 다른 사용자가 등록한 아이디입니다.\n본인의 아이디라면 비밀번호를 확인하시고, 아니라면 다른 아이디를 사용해 주세요.`);
+                return; // 함수 종료
+            }
+        }
+
+        // 3단계: (새 아이디이거나 비번 검증 통과 시) 데이터 암호화 및 저장 실행
+        showToast("데이터 클라우드 전송 중...");
         const localData = localStorage.getItem('yuga_dashboard_v1');
         const themeData = localStorage.getItem('yuga_dashboard_theme');
         const rawContent = JSON.stringify({ data: JSON.parse(localData || '{}'), theme: themeData });
 
         const encrypted = CryptoJS.AES.encrypt(rawContent, pw1).toString();
 
-        const res = await fetch(CLOUD_API_URL, {
+        const saveRes = await fetch(CLOUD_API_URL, {
             method: 'POST',
             body: JSON.stringify({ 
                 mode: 'save', 
                 userId: id, 
                 content: encrypted,
-                force: false // 📍 여기를 무조건 false로 고정하여 중복 체크 강제
+                force: true // 📍 검증을 마쳤으므로 덮어쓰기 허용
             })
         });
 
-        const result = await res.text();
-
-        if (result === "EXISTS") {
-            // 📍 '205'가 이미 있으므로 이 메시지가 떠야 정상입니다.
-            alert(`'${id}'는 이미 등록된 아이디입니다.\n본인의 데이터라면 '불러오기'를 이용하시거나, 다른 아이디를 사용해 주세요.`);
-            return; 
-        } 
-        
-        if (result === "SUCCESS") {
-            showToast("새로운 아이디로 안전하게 저장되었습니다! ✅");
+        if (await saveRes.text() === "SUCCESS") {
+            showToast("성공적으로 업데이트되었습니다! ✅");
             closeBackupModal();
         }
-    } catch (e) { 
-        alert("통신 오류가 발생했습니다."); 
+    } catch (e) {
+        console.error(e);
+        alert("통신 중 오류가 발생했습니다.");
     }
 }
 
 /**
  * 📂 [목록] 공유 폴더 내 파일 조회
  */
+/**
+ * 📂 [목록] 비밀번호 검증 후 공유 폴더 내 파일 조회
+ */
 async function fetchCloudFileList() {
     const id = document.getElementById('load-id').value.trim();
-    if (!id) return alert("아이디를 입력하세요.");
+    const pw = document.getElementById('load-pw').value;
+
+    if (!id || !pw) return alert("아이디와 비밀번호를 모두 입력하세요.");
 
     const listDiv = document.getElementById('cloud-file-list');
-    listDiv.innerHTML = "<div style='text-align:center; padding:10px;'>조회 중...</div>";
+    listDiv.innerHTML = "<div style='text-align:center; padding:10px; font-size:0.8rem;'>보안 검증 및 목록 조회 중...</div>";
     listDiv.style.display = 'block';
 
     try {
+        // 1. 먼저 아이디에 해당하는 파일 목록을 가져옵니다.
         const res = await fetch(CLOUD_API_URL, {
             method: 'POST',
             body: JSON.stringify({ mode: 'list', userId: id })
@@ -1323,21 +1358,43 @@ async function fetchCloudFileList() {
         const files = await res.json();
 
         if (files.length === 0) {
-            listDiv.innerHTML = "<div style='text-align:center; padding:10px; opacity:0.6;'>저장된 백업 데이터가 없습니다.</div>";
+            listDiv.innerHTML = "<div style='text-align:center; padding:10px; opacity:0.6; font-size:0.8rem;'>저장된 백업 데이터가 없습니다.</div>";
             return;
         }
 
-        // 인증 입력창 숨기고 파일 목록 표시
-        document.getElementById('load-auth-area').style.display = 'none';
-        listDiv.innerHTML = files.map(f => `
-            <div class="restore-item" onclick="restoreFromCloud('${f.id}')" style="padding:12px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
-                <span>${new Date(f.date).toLocaleString()} 백업본</span>
-                <span class="material-symbols-rounded" style="color:var(--accent);">download</span>
-            </div>
-        `).join('') + `<button class="btn-cancel" onclick="showStep('step-load')" style="width:100%; margin-top:10px; font-size:0.75rem; border:none; background:none; color:white; cursor:pointer;">↻ 다시 조회하기</button>`;
-    } catch (e) {
+        // 2. 🔐 [핵심 보안] 가장 최근 파일을 읽어와서 사용자가 입력한 비번으로 복호화 시도
+        const verifyRes = await fetch(CLOUD_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ mode: 'read', fileId: files[0].id })
+        });
+        const encryptedData = await verifyRes.text();
+
+        try {
+            const bytes = CryptoJS.AES.decrypt(encryptedData.trim(), pw);
+            const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+            
+            // 복호화 결과가 없으면 비번이 틀린 것임
+            if (!decryptedStr) throw new Error("AUTH_FAIL");
+
+            // 3. 검증 성공 시에만 인증창을 숨기고 목록을 렌더링합니다.
+            document.getElementById('load-auth-area').style.display = 'none';
+            
+            listDiv.innerHTML = files.map(f => `
+                <div class="restore-item" onclick="restoreFromCloud('${f.id}')" style="padding:12px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
+                    <span>${new Date(f.date).toLocaleString()} 백업본</span>
+                    <span class="material-symbols-rounded" style="color:var(--accent);">download</span>
+                </div>
+            `).join('') + `<button class="btn-cancel" onclick="showStep('step-load')" style="width:100%; margin-top:10px; font-size:0.75rem; border:none; background:none; color:white; cursor:pointer;">↻ 아이디 다시 입력</button>`;
+            
+            showToast("인증되었습니다. 복구할 파일을 선택하세요.");
+
+        } catch (authError) {
+            // 비번이 틀리면 목록을 보여주지 않고 에러 메시지 출력
+            listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c; font-size:0.8rem;'>비밀번호가 일치하지 않아 목록을 볼 수 없습니다.</div>";
+        }
+    } catch (e) { 
         console.error(e);
-        listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c;'>조회 실패: 네트워크 상태를 확인하세요.</div>";
+        listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c; font-size:0.8rem;'>조회 실패: 네트워크 상태를 확인하세요.</div>"; 
     }
 }
 
