@@ -1568,27 +1568,62 @@ h4 { border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 10
     overflow-y: auto;
 }
 
+/* 🔐 구글 로그인 모달 및 버튼 커스텀 디자인 */
 .backup-modal {
-    width: 320px;
-    text-align: center;
+    background: var(--bg-glass) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--accent) !important;
+    border-radius: 20px;
+    padding: 30px !important;
 }
 
+/* 세련된 구글 로그인 버튼 */
 .btn-google-login {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
-    padding: 12px;
-    background: white;
-    color: #444;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.05) !important; /* 투명한 배경 */
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 12px;
     font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
-    margin-top: 20px;
+    transition: all 0.3s ease;
+    margin-top: 25px;
 }
-
+.btn-google-login:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--accent) !important; /* 호버 시 노란색 테두리 */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+/* 인증 완료 후 상태 표시 영역 */
+#google-auth-status {
+    animation: fadeIn 0.4s ease;
+}
+/* 백업/복구/로그아웃 버튼 세로 정렬 최적화 */
+.auth-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+#user-info {
+    color: var(--accent);
+    font-size: 0.9rem;
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.btn-google-login img {
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
 .btn-primary-save {
     width: 100%;
     padding: 12px;
@@ -1875,4 +1910,129 @@ h4 { border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 10
 .todo-card {
     flex: 0 0 auto !important;
     max-height: 30vh; /* 시간표 아래에서 적당한 높이 유지 */
+}
+
+/* [style.css 하단에 추가] */
+
+/* 불러오기 모달 스타일 */
+.restore-modal {
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    background: var(--bg-card); /* 대시보드 테마 배경색 사용 */
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-close-icon {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+/* 📂 구글 드라이브 리스트 아이템 디자인 */
+.restore-list-container {
+    max-height: 250px;
+    overflow-y: auto;
+    margin: 15px 0;
+    padding-right: 5px;
+}
+
+.restore-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.restore-item:hover {
+    background: rgba(255, 213, 79, 0.1); /* 유가초 포인트 컬러(노란색) 은은하게 */
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.restore-item-info {
+    flex: 1;
+    text-align: left;
+}
+
+.restore-item-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 2px;
+}
+
+.restore-item-date {
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+.loading-spinner {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.6;
+}
+
+/* [style.css] 토스트 팝업 스타일 */
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20000; /* 모달보다 위에 표시 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--accent);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: toast-in-out 2.5s ease forwards;
+}
+
+@keyframes toast-in-out {
+    0% { opacity: 0; transform: translateY(20px); }
+    15% { opacity: 1; transform: translateY(0); }
+    85% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
 }

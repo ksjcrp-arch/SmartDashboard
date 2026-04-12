@@ -5,10 +5,12 @@ let currentMode = null;
 let currentTarget = null;
 const SPECIAL_LIST = ['영어1', '영어2', '음악', '체육', '강사'];
 let currentMealDate = new Date();
-let sortableInstances = []; 
+let sortableInstances = [];
 let isEditMode = false;
 let viewDate = new Date(); // 달력 기준 날짜
 let selectedDateKey = null; // 현재 선택된 날짜 저장용
+// [script.js 상단 설정 구역]
+const SHARED_FOLDER_ID = '1l12mPq1kJu_BzHLuDInPWxVSoe8NcRIJ'; // 📍 필수 수정
 
 // 상수 설정
 const ATPT_CODE = 'D10';   // 대구교육청
@@ -302,7 +304,7 @@ function renderDDayItem(title, dateInput) {
     const newItem = document.createElement('div');
     newItem.className = 'd-day-item';
     newItem.innerHTML = `
-        <div class="d-info"><span class="d-label">${title}</span><span class="d-date">${dateInput.substring(0,4)}-${dateInput.substring(4,6)}-${dateInput.substring(6,8)}</span></div>
+        <div class="d-info"><span class="d-label">${title}</span><span class="d-date">${dateInput.substring(0, 4)}-${dateInput.substring(4, 6)}-${dateInput.substring(6, 8)}</span></div>
         <div class="d-right"><span class="d-count">${dDayText}</span><button class="btn-del-dday" onclick="this.parentElement.parentElement.remove(); saveAllToLocal();"><span class="material-symbols-rounded">delete</span></button></div>
     `;
     container.prepend(newItem);
@@ -371,7 +373,7 @@ function closeNoticeModal() {
     document.getElementById('modal-notice').style.display = 'none';
 }
 
-let cachedSheetData = null; 
+let cachedSheetData = null;
 let lastSheetName = "";
 
 async function refreshTimetableData() {
@@ -457,12 +459,12 @@ function renderWeeklyTable(data) {
 function highlightCurrentPeriod() {
     const now = new Date();
     const day = now.getDay(); // 0(일) ~ 6(토)
-    
+
     // 주말(토, 일)은 실행 안 함
     if (day === 0 || day === 6) return;
 
     const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    
+
     // 1️⃣ 월, 화, 목, 금 표준 시정 (6~7교시)
     const commonTime = [
         { p: 1, s: '08:50', e: '09:29' },
@@ -494,7 +496,7 @@ function highlightCurrentPeriod() {
     // 현재 교시가 있다면 해당 칸 강조
     if (currentP) {
         const tables = document.querySelectorAll('.mini-weekly-table, .weekly-table');
-        
+
         tables.forEach(table => {
             const rows = table.querySelectorAll('tbody tr');
             const targetRow = rows[currentP - 1];
@@ -581,13 +583,13 @@ async function fetchAirQuality() {
         const item = data.response.body.items[0];
         const gradeNum = Math.max(Number(item.pm10Grade), Number(item.pm25Grade));
         const grades = ["", "좋음", "보통", "나쁨", "매우나쁨"], icons = ["", "sentiment_very_satisfied", "sentiment_satisfied", "sentiment_dissatisfied", "sick"];
-        dustWidget.innerHTML = `<div class="air-header"><span class="material-symbols-rounded" style="font-size:2rem;">${icons[gradeNum]||"help"}</span><div class="air-status-text"><span class="air-label">미세먼지</span><span class="air-grade-val">${grades[gradeNum]||"정보없음"}</span></div></div><div class="air-details-grid"><div class="air-item"><div class="air-item-label">미세</div><div class="air-item-val">${item.pm10Value}㎍</div></div><div class="air-item"><div class="air-item-label">초미세</div><div class="air-item-val">${item.pm25Value}㎍</div></div></div>`;
+        dustWidget.innerHTML = `<div class="air-header"><span class="material-symbols-rounded" style="font-size:2rem;">${icons[gradeNum] || "help"}</span><div class="air-status-text"><span class="air-label">미세먼지</span><span class="air-grade-val">${grades[gradeNum] || "정보없음"}</span></div></div><div class="air-details-grid"><div class="air-item"><div class="air-item-label">미세</div><div class="air-item-val">${item.pm10Value}㎍</div></div><div class="air-item"><div class="air-item-label">초미세</div><div class="air-item-val">${item.pm25Value}㎍</div></div></div>`;
     } catch (e) { console.error(e); }
 }
 
 async function displayMeal() {
-    const ymd = currentMealDate.getFullYear() + String(currentMealDate.getMonth()+1).padStart(2,'0') + String(currentMealDate.getDate()).padStart(2,'0');
-    document.getElementById('meal-display-date').innerText = `${currentMealDate.getFullYear()}-${String(currentMealDate.getMonth()+1).padStart(2,'0')}-${String(currentMealDate.getDate()).padStart(2,'0')}`;
+    const ymd = currentMealDate.getFullYear() + String(currentMealDate.getMonth() + 1).padStart(2, '0') + String(currentMealDate.getDate()).padStart(2, '0');
+    document.getElementById('meal-display-date').innerText = `${currentMealDate.getFullYear()}-${String(currentMealDate.getMonth() + 1).padStart(2, '0')}-${String(currentMealDate.getDate()).padStart(2, '0')}`;
     try {
         const res = await fetch(`https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=D10&SD_SCHUL_CODE=7281024&MLSV_YMD=${ymd}`);
         const data = await res.json();
@@ -622,16 +624,33 @@ function initTheme() {
 }
 
 /**
- * [9] 백업/복구 및 편집 모드 (위치 저장 기능 제외 버전)
+ * 🔄 모달 단계 전환 및 초기화
  */
-function openBackupModal() { document.getElementById('modal-backup').style.display = 'flex'; }
-function closeBackupModal() { document.getElementById('modal-backup').style.display = 'none'; }
+function showStep(stepId) {
+    document.querySelectorAll('.step-container').forEach(el => el.style.display = 'none');
+    document.getElementById(stepId).style.display = 'block';
+
+    // 불러오기 탭으로 갈 때마다 목록 영역 초기화
+    if (stepId === 'step-load') {
+        document.getElementById('cloud-file-list').style.display = 'none';
+        document.getElementById('load-auth-area').style.display = 'block';
+    }
+}
+
+function openBackupModal() {
+    document.getElementById('modal-backup').style.display = 'flex';
+    showStep('step-main');
+}
+
+function closeBackupModal() {
+    document.getElementById('modal-backup').style.display = 'none';
+}
 
 // script.js 내 exportSettingsToFile 함수 보정
 function exportSettingsToFile() {
     const localData = localStorage.getItem('yuga_dashboard_v1');
     const themeData = localStorage.getItem('yuga_dashboard_theme');
-    
+
     const fullConfig = {
         data: JSON.parse(localData),
         theme: themeData,
@@ -643,15 +662,15 @@ function exportSettingsToFile() {
     const blob = new Blob([JSON.stringify(fullConfig, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    
+
     link.href = url;
     link.download = fileName;
-    
+
     // 📍 라이블리 월페이퍼 환경을 위한 보정
     document.body.appendChild(link); // 링크를 문서에 실제 추가
     link.click();                    // 클릭 트리거
     document.body.removeChild(link);  // 클릭 후 즉시 제거
-    
+
     URL.revokeObjectURL(url);
 }
 
@@ -681,8 +700,8 @@ function saveGridOrder() {
     columns.forEach((col) => {
         // 해당 컬럼 안에 있는 카드들의 ID만 추출 (공백이나 ID 없는 요소 제외)
         const cardIds = Array.from(col.querySelectorAll('.card'))
-                             .map(card => card.id)
-                             .filter(id => id); 
+            .map(card => card.id)
+            .filter(id => id);
         orderData[col.id] = cardIds;
     });
 
@@ -722,7 +741,7 @@ function loadGridOrder() {
     if (!savedOrder) return;
 
     const orderData = JSON.parse(savedOrder);
-    
+
     // 1. 현재 화면에 있는 모든 카드를 찾아서 메모리에 보관
     const allCards = {};
     document.querySelectorAll('.card').forEach(card => {
@@ -752,30 +771,15 @@ function showToast(msg) {
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 2500);
 }
 
-/**
- * [10] 실행
- */
-window.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    loadAllFromLocal(); // 📍 핵심: 로드 시 데이터 복구
-    loadGridOrder();    // [중요] 그 다음 저장된 위치로 카드 옮기기
-    updateInfoGrid();
-    setInterval(updateInfoGrid, 1000);
-    fetchRealTimeWeather();
-    fetchAirQuality();
-    displayMeal();
-    renderCalendar();
-    fetchNotices();
-    setInterval(fetchNotices, 10000);
-});
+
 
 /* --------------------------------------------------------------------------
    ☁️ Google Drive API 동기화 로직
    -------------------------------------------------------------------------- */
 
 // 📍 구글 클라우드 콘솔에서 발급받은 정보 입력
-const CLIENT_ID = '619592639514-bm34n0vpghcfjlhnq11lfj8hihom8n2p.apps.googleusercontent.com';
-const API_KEY = 'AIzaSyC7STFo1mlxn4SzZTQcHtppXDY0vVeQVZw';
+const CLIENT_ID = '777239839380-mp51geihmtfp525tpejh5ue723jh8lum.apps.googleusercontent.com';
+const API_KEY = 'AIzaSyBtTr6kwWThu6ewNpJ2NxOzJwH6AmQjT_8';
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = 'https://www.googleapis.com/auth/drive.file';
 
@@ -796,7 +800,7 @@ function gisLoaded() {
     tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CLIENT_ID,
         scope: SCOPES,
-        callback: '', 
+        callback: '',
     });
     gisInited = true;
     console.log("GIS 초기화 완료"); // 확인용
@@ -805,53 +809,585 @@ function gisLoaded() {
 /**
  * 🔐 구글 드라이브에 설정 파일 업로드
  */
+/**
+ * 🔐 [1] 구글 드라이브 백업 실행 (파일명 지정 및 폴더 생성 포함)
+ */
 async function uploadConfigToDrive() {
-    const localData = localStorage.getItem('yuga_dashboard_v1'); //
-    const themeData = localStorage.getItem('yuga_dashboard_theme');
-    const content = JSON.stringify({ data: JSON.parse(localData), theme: themeData });
-    
-    const fileMetadata = {
-        'name': 'yuga_dashboard_config.json',
-        'mimeType': 'application/json'
-    };
-
-    const blob = new Blob([content], { type: 'application/json' });
-    const formData = new FormData();
-    formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-    formData.append('file', blob);
-
     try {
+        // 1. 현재 날짜/시간 기반으로 기본 파일명 생성
+        const now = new Date();
+        const defaultName = `backup_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+
+        // 2. 사용자에게 파일 이름 입력 받기
+        const fileName = prompt("백업 파일 이름을 입력하세요:", defaultName);
+        if (!fileName) return; // 취소 시 중단
+
+        showToast("구글 드라이브 연결 중...");
+
+        // 3. "YugaSmartDashboard" 전용 폴더 ID 확보 (없으면 자동 생성)
+        const folderId = await getOrCreateFolder("YugaSmartDashboard");
+
+        // 4. 로컬 스토리지 데이터 수집
+        const localData = localStorage.getItem('yuga_dashboard_v1');
+        const themeData = localStorage.getItem('yuga_dashboard_theme');
+        const content = JSON.stringify({
+            data: JSON.parse(localData),
+            theme: themeData,
+            savedAt: new Date().toLocaleString()
+        });
+
+        // 5. 업로드용 메타데이터 및 파일 데이터 준비
+        const fileMetadata = {
+            'name': fileName + ".json",
+            'parents': [folderId], // 생성한 전용 폴더 안에 저장
+            'mimeType': 'application/json'
+        };
+
+        const blob = new Blob([content], { type: 'application/json' });
+        const formData = new FormData();
+        formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+        formData.append('file', blob);
+
+        // 6. Multipart 업로드 API 호출
         const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
             method: 'POST',
-            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token }),
+            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
             body: formData
         });
-        
+
         if (response.ok) {
-            showToast("구글 드라이브 백업 완료!");
+            showToast("전용 폴더(YugaSmartDashboard)에 백업 완료!");
+        } else {
+            throw new Error("업로드 실패");
         }
     } catch (err) {
-        console.error("업로드 실패:", err);
+        console.error("백업 오류:", err);
+        showToast("백업 중 오류가 발생했습니다.");
+    }
+}
+
+/**
+ * 📂 [2] 전용 폴더 존재 여부를 확인하고 없으면 새로 생성하는 함수
+ */
+async function getOrCreateFolder(folderName) {
+    // 폴더 검색 쿼리: 이름이 일치하고, 휴지통에 없으며, 마임타입이 폴더인 것 검색
+    const query = `name = '${folderName}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+    const response = await gapi.client.drive.files.list({ q: query, fields: 'files(id, name)' });
+    const files = response.result.files;
+
+    if (files && files.length > 0) {
+        // 이미 폴더가 존재하면 해당 ID 반환
+        return files[0].id;
+    } else {
+        // 폴더가 없으면 새로 생성
+        const folderMetadata = {
+            'name': folderName,
+            'mimeType': 'application/vnd.google-apps.folder'
+        };
+        const folder = await gapi.client.drive.files.create({
+            resource: folderMetadata,
+            fields: 'id'
+        });
+        console.log("새 폴더 생성 완료:", folder.result.id);
+        return folder.result.id;
+    }
+}
+
+// [script.js] handleSignoutClick 함수 수정
+function handleSignoutClick() {
+    const token = gapi.client.getToken();
+    if (token !== null) {
+        google.accounts.oauth2.revoke(token.access_token);
+        gapi.client.setToken('');
+
+        // ✅ 자동 로그인 기록 삭제
+        localStorage.removeItem('gdrive_logged_in');
+
+        showToast("로그아웃 되었습니다.");
+        setTimeout(() => location.reload(), 1000);
     }
 }
 
 // 기존 saveToGoogleDrive 이름을 handleAuthClick으로 변경
-async function handleAuthClick() {
-    if (!gapiInited || !gisInited) {
-        showToast("구글 API 라이브러리가 로드 중입니다. 잠시 후 다시 시도해 주세요.");
+// [script.js의 handleAuthClick 함수 수정]
+function handleAuthClick() {
+    if (!tokenClient) {
+        showToast("구글 라이브러리 로딩 중입니다. 잠시 후 다시 시도해 주세요.");
         return;
     }
 
+    // [script.js] handleAuthClick 함수 내부 수정
     tokenClient.callback = async (resp) => {
         if (resp.error !== undefined) throw (resp);
-        // ... 실제 저장 로직 ...
-        await uploadConfigToDrive(); 
+
+        // ✅ 로그인 성공 시 로컬 스토리지에 기록 (보안상 토큰 대신 '로그인 여부'만 저장)
+        localStorage.setItem('gdrive_logged_in', 'true');
+
+        const loginBtn = document.getElementById('btn-google-login');
+        const authStatus = document.getElementById('google-auth-status');
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (authStatus) authStatus.style.display = 'block';
+
+        showToast("구글 계정 인증 성공!");
     };
 
-    // 토큰이 없으면 팝업 요청, 있으면 바로 실행
+    // 토큰 요청 (이미 있으면 바로 콜백 실행)
     if (gapi.client.getToken() === null) {
-        tokenClient.requestAccessToken({prompt: 'consent'});
+        tokenClient.requestAccessToken({ prompt: 'consent' });
     } else {
-        tokenClient.requestAccessToken({prompt: ''});
+        tokenClient.requestAccessToken({ prompt: '' });
     }
+}
+
+// [script.js 하단부의 loadConfigFromDrive 및 관련 함수들 교체]
+
+/**
+ * 📂 [2] 공유 폴더 내 파일 목록 가져오기
+ */
+async function loadConfigFromDrive() {
+    closeBackupModal();
+    const modal = document.getElementById('modal-restore-list');
+    const listContainer = document.getElementById('restore-file-list');
+
+    if (modal) modal.style.display = 'flex';
+    if (listContainer) listContainer.innerHTML = '<div class="loading-spinner">공유 폴더 확인 중...</div>';
+
+    try {
+        // 📍 공유 폴더 내의 파일만 검색하도록 쿼리 수정
+        const response = await gapi.client.drive.files.list({
+            q: `'${SHARED_FOLDER_ID}' in parents and trashed = false`,
+            fields: 'files(id, name, createdTime)',
+            orderBy: 'createdTime desc'
+        });
+
+        const files = response.result.files;
+        renderRestoreList(files);
+    } catch (err) {
+        console.error("목록 가져오기 실패:", err);
+        if (listContainer) listContainer.innerHTML = '<div class="error-text">폴더 접근 권한이 없습니다.</div>';
+    }
+}
+
+function renderRestoreList(files) {
+    const listContainer = document.getElementById('restore-file-list');
+    if (!listContainer) return;
+
+    if (!files || files.length === 0) {
+        listContainer.innerHTML = '<div class="no-data-text">저장된 백업 파일이 없습니다.</div>';
+        return;
+    }
+
+    let listHtml = '';
+    files.forEach((file) => {
+        const formattedDate = new Date(file.createdTime).toLocaleString();
+        listHtml += `
+            <div class="restore-item" onclick="downloadAndRestoreFile('${file.id}', '${file.name}')">
+                <span class="material-symbols-rounded" style="color:var(--accent)">description</span>
+                <div class="restore-item-info">
+                    <div class="restore-item-name">${file.name}</div>
+                    <div class="restore-item-date">${formattedDate}</div>
+                </div>
+                <span class="material-symbols-rounded" style="opacity:0.3">chevron_right</span>
+            </div>
+        `;
+    });
+    listContainer.innerHTML = listHtml;
+}
+
+async function downloadAndRestoreFile(fileId, fileName) {
+    if (!confirm(`'${fileName}' 시점으로 복구하시겠습니까?`)) return;
+
+    closeRestoreModal();
+    showToast("데이터 복구 중...");
+
+    try {
+        const fileContent = await gapi.client.drive.files.get({
+            fileId: fileId,
+            alt: 'media'
+        });
+
+        const config = fileContent.result;
+        if (config.data) localStorage.setItem('yuga_dashboard_v1', JSON.stringify(config.data));
+        if (config.theme) localStorage.setItem('yuga_dashboard_theme', config.theme);
+
+        showToast("복구 완료! 새로고침합니다.");
+        setTimeout(() => location.reload(), 1500);
+    } catch (err) {
+        console.error("복구 실패:", err);
+        showToast("복구 중 오류가 발생했습니다.");
+    }
+}
+
+function closeRestoreModal() {
+    const modal = document.getElementById('modal-restore-list');
+    if (modal) modal.style.display = 'none';
+}
+
+
+
+
+
+
+// [script.js] 맨 하단 window.addEventListener('DOMContentLoaded', ...) 교체
+window.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
+    loadAllFromLocal();
+    loadGridOrder();
+    updateInfoGrid();
+    setInterval(updateInfoGrid, 1000);
+    fetchRealTimeWeather();
+    fetchAirQuality();
+    displayMeal();
+    renderCalendar();
+    fetchNotices();
+    setInterval(fetchNotices, 10000);
+
+    // ✨ 자동 로그인 복구 핵심 로직
+    ; // 라이브러리 안정화를 위해 2초 후 실행
+});
+
+/**
+ * 🔒 [1] 지정된 공유 폴더로 암호화 업로드
+ */
+async function encryptAndUploadToDrive() {
+    const password = document.getElementById('backup-password').value;
+    if (!password) {
+        alert("비밀번호를 입력해주세요!");
+        return;
+    }
+
+    try {
+        const fileName = prompt("백업 파일 이름:", `yuga_${new Date().toISOString().slice(0, 10)}`);
+        if (!fileName) return;
+
+        showToast("암호화 및 공유 폴더 연결 중...");
+
+        // 데이터 암호화 로직
+        const localData = localStorage.getItem('yuga_dashboard_v1');
+        const themeData = localStorage.getItem('yuga_dashboard_theme');
+        const gridLayout = localStorage.getItem('yuga_grid_layout');
+
+        const rawContent = JSON.stringify({
+            data: JSON.parse(localData || '{}'),
+            theme: themeData,
+            layout: JSON.parse(gridLayout || '{}')
+        });
+        const encrypted = CryptoJS.AES.encrypt(rawContent, password).toString();
+
+        // 📍 미리 지정한 공유 폴더 ID 사용
+        const fileMetadata = {
+            'name': fileName + ".enc",
+            'parents': [SHARED_FOLDER_ID], // 👈 선생님이 설정한 폴더로 직접 전송
+            'mimeType': 'text/plain'
+        };
+
+        const blob = new Blob([encrypted], { type: 'text/plain' });
+        const formData = new FormData();
+        formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+        formData.append('file', blob);
+
+        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+            body: formData
+        });
+
+        if (response.ok) {
+            showToast("공유 폴더에 안전하게 저장되었습니다!");
+        } else {
+            throw new Error("전송 실패");
+        }
+    } catch (err) {
+        console.error("백업 오류:", err);
+        showToast("공유 폴더 접근 권한을 확인하세요.");
+    }
+}
+
+/**
+ * 🔒 [암호화 동기화] 설정을 텍스트 코드로 변환
+ */
+function generateBackupCode() {
+    const password = document.getElementById('backup-password').value;
+    if (!password) return alert("비밀번호를 입력하세요!");
+
+    try {
+        const localData = localStorage.getItem('yuga_dashboard_v1');
+        const themeData = localStorage.getItem('yuga_dashboard_theme');
+
+        // 데이터 구조화
+        const rawContent = JSON.stringify({
+            data: JSON.parse(localData || '{}'),
+            theme: themeData,
+            exportedAt: new Date().toLocaleString()
+        });
+
+        // AES 암호화 실행 (CryptoJS 라이브러리 필요)
+        if (typeof CryptoJS === 'undefined') {
+            alert("암호화 라이브러리가 로드되지 않았습니다. 인터넷 연결을 확인하세요.");
+            return;
+        }
+
+        const encrypted = CryptoJS.AES.encrypt(rawContent, password).toString();
+
+        // UI 업데이트
+        document.getElementById('encrypted-code-area').value = encrypted;
+        document.getElementById('backup-result-area').style.display = 'block';
+        document.getElementById('restore-input-area').style.display = 'none';
+
+        // 성공 알림 (showToast가 정의되어 있다면 사용)
+        alert("암호화 코드가 생성되었습니다!");
+    } catch (e) {
+        console.error(e);
+        alert("코드 생성 중 오류가 발생했습니다.");
+    }
+}
+
+function copyEncryptedCode() {
+    const area = document.getElementById('encrypted-code-area');
+    area.select();
+    document.execCommand('copy');
+    alert("코드가 복사되었습니다! 카톡이나 메모장에 저장하세요.");
+}
+
+function showRestoreInput() {
+    document.getElementById('restore-input-area').style.display = 'block';
+    document.getElementById('backup-result-area').style.display = 'none';
+}
+
+function decryptAndRestore() {
+    const password = document.getElementById('backup-password').value;
+    const encryptedData = document.getElementById('input-code-area').value.trim();
+
+    if (!password || !encryptedData) return alert("비밀번호와 코드를 모두 입력하세요!");
+
+    try {
+        const bytes = CryptoJS.AES.decrypt(encryptedData, password);
+        const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+
+        if (!decryptedStr) throw new Error("Invalid password");
+
+        const config = JSON.parse(decryptedStr);
+
+        // 로컬 스토리지 복구
+        if (config.data) localStorage.setItem('yuga_dashboard_v1', JSON.stringify(config.data));
+        if (config.theme) localStorage.setItem('yuga_dashboard_theme', config.theme);
+
+        alert("설정이 성공적으로 복구되었습니다! 페이지를 새로고침합니다.");
+        location.reload();
+    } catch (err) {
+        alert("비밀번호가 틀렸거나 잘못된 코드입니다.");
+    }
+}
+
+async function encryptAndUploadToSharedDrive() {
+    const password = document.getElementById('backup-password').value;
+    if (!password) return alert("비밀번호를 입력해주세요!");
+
+    try {
+        const fileName = prompt("백업 파일 이름:", `yuga_${new Date().toISOString().slice(0, 10)}`);
+        if (!fileName) return;
+
+        showToast("데이터 암호화 중...");
+
+        // 1. 데이터 암호화
+        const localData = localStorage.getItem('yuga_dashboard_v1');
+        const themeData = localStorage.getItem('yuga_dashboard_theme');
+        const rawContent = JSON.stringify({
+            data: JSON.parse(localData || '{}'),
+            theme: themeData
+        });
+        const encrypted = CryptoJS.AES.encrypt(rawContent, password).toString();
+
+        // 2. 구글 드라이브 업로드 설정
+        const fileMetadata = {
+            'name': fileName + ".enc",
+            'parents': [SHARED_FOLDER_ID]
+        };
+
+        const blob = new Blob([encrypted], { type: 'text/plain' });
+        const formData = new FormData();
+        formData.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+        formData.append('file', blob);
+
+        const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: new Headers({ 'Authorization': 'Bearer ' + gapi.client.getToken().access_token }),
+            body: formData
+        });
+
+        if (response.ok) {
+            showToast("공유 폴더에 안전하게 저장되었습니다!");
+        } else {
+            throw new Error("전송 실패");
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("저장 실패. 권한을 확인하세요.");
+    }
+}
+
+/**
+ * 📂 공유 폴더에서 파일 목록 불러오기
+ */
+async function loadConfigFromSharedDrive() {
+    // 기존에 만드신 복구 리스트 모달을 띄우는 로직
+    const listContainer = document.getElementById('restore-file-list');
+    document.getElementById('modal-restore-list').style.display = 'flex';
+    listContainer.innerHTML = '목록 읽어오는 중...';
+
+    try {
+        const response = await gapi.client.drive.files.list({
+            q: `'${SHARED_FOLDER_ID}' in parents and trashed = false`,
+            fields: 'files(id, name, createdTime)',
+            orderBy: 'createdTime desc'
+        });
+
+        const files = response.result.files;
+        // 목록 렌더링 (기존 함수 활용)
+        renderRestoreList(files);
+    } catch (err) {
+        listContainer.innerHTML = '파일을 불러올 수 없습니다.';
+    }
+}
+
+// [script.js 하단]
+const CLOUD_API_URL = "https://script.google.com/macros/s/AKfycbzTWsWwXUTJCmtImP31wxtm6WaPPxZaUvKFoPSTHtNX-3lB_L_A5TAaLOOqhDpw5_av/exec";
+
+async function encryptAndSaveToCloud() {
+    const id = document.getElementById('save-id').value.trim();
+    const pw1 = document.getElementById('save-pw1').value;
+    const pw2 = document.getElementById('save-pw2').value;
+
+    if (!id || !pw1) return alert("아이디와 비밀번호를 모두 입력하세요.");
+    if (pw1 !== pw2) return alert("비밀번호 재확인이 일치하지 않습니다.");
+
+    showToast("데이터 암호화 및 클라우드 전송 중...");
+
+    try {
+        const localData = localStorage.getItem('yuga_dashboard_v1');
+        const themeData = localStorage.getItem('yuga_dashboard_theme');
+        const rawContent = JSON.stringify({
+            data: JSON.parse(localData || '{}'),
+            theme: themeData
+        });
+
+        // 사용자가 입력한 비밀번호(pw1)로 AES 암호화
+        const encrypted = CryptoJS.AES.encrypt(rawContent, pw1).toString();
+
+        const res = await fetch(CLOUD_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ mode: 'save', userId: id, content: encrypted })
+        });
+
+        const result = await res.text();
+        if (result === "SUCCESS") {
+            showToast("안전하게 암호화하여 저장하였습니다! ✅");
+            closeBackupModal();
+        } else {
+            throw new Error("서버 응답 오류");
+        }
+    } catch (e) {
+        console.error(e);
+        alert("저장 실패: " + e.message);
+    }
+}
+
+/**
+ * 📂 [목록] 공유 폴더 내 파일 조회
+ */
+async function fetchCloudFileList() {
+    const id = document.getElementById('load-id').value.trim();
+    if (!id) return alert("아이디를 입력하세요.");
+
+    const listDiv = document.getElementById('cloud-file-list');
+    listDiv.innerHTML = "<div style='text-align:center; padding:10px;'>공유 폴더 조회 중...</div>";
+    listDiv.style.display = 'block';
+
+    try {
+        const res = await fetch(CLOUD_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ mode: 'list', userId: id })
+        });
+        const files = await res.json();
+
+        if (files.length === 0) {
+            listDiv.innerHTML = "<div style='text-align:center; padding:10px; opacity:0.6;'>저장된 백업 데이터가 없습니다.</div>";
+            return;
+        }
+
+        // 인증 입력창 숨기고 파일 목록 표시
+        document.getElementById('load-auth-area').style.display = 'none';
+        listDiv.innerHTML = files.map(f => `
+            <div class="restore-item" onclick="restoreFromCloud('${f.id}')" style="padding:12px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
+                <span>${new Date(f.date).toLocaleString()} 백업본</span>
+                <span class="material-symbols-rounded" style="color:var(--accent);">download</span>
+            </div>
+        `).join('') + `<button class="btn-cancel" onclick="showStep('step-load')" style="width:100%; margin-top:10px; font-size:0.75rem; border:none; background:none; color:white; cursor:pointer;">↻ 다시 조회하기</button>`;
+    } catch (e) {
+        console.error(e);
+        listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c;'>조회 실패: 네트워크 상태를 확인하세요.</div>";
+    }
+}
+
+/**
+ * 🔓 [복구] 파일 복호화 및 적용
+ */
+/**
+ * 🔓 [복구] 파일 읽기 및 정밀 복호화
+ */
+async function restoreFromCloud(fileId) {
+    const pw = document.getElementById('load-pw').value;
+    if (!pw) return alert("복호화를 위해 비밀번호를 입력해주세요.");
+    if (!confirm("이 설정으로 복구하시겠습니까? 현재 대시보드 데이터는 모두 교체됩니다.")) return;
+
+    showToast("데이터 복구 시도 중...");
+
+    try {
+        // 📍 Failed to fetch 해결: GAS에 'read' 모드로 요청하여 파일 내용을 직접 텍스트로 받음
+        const res = await fetch(CLOUD_API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ mode: 'read', fileId: fileId })
+        });
+
+        if (!res.ok) throw new Error("서버 연결 실패");
+
+        const encryptedData = await res.text();
+
+        // AES 복호화 시도
+        const bytes = CryptoJS.AES.decrypt(encryptedData.trim(), pw);
+        const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
+
+        if (!decryptedStr) {
+            throw new Error("비밀번호가 틀렸거나 데이터가 손상되었습니다.");
+        }
+
+        const decrypted = JSON.parse(decryptedStr);
+
+        // 로컬 스토리지에 복구 데이터 적용
+        if (decrypted.data) localStorage.setItem('yuga_dashboard_v1', JSON.stringify(decrypted.data));
+        if (decrypted.theme) localStorage.setItem('yuga_dashboard_theme', decrypted.theme);
+
+        showToast("성공적으로 복구되었습니다! ✅");
+        location.reload();
+
+    } catch (e) {
+        console.error("복구 에러 상세:", e);
+        alert("복구 실패: " + e.message);
+    }
+}
+/**
+ * 🍞 토스트 팝업 표시 함수
+ */
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.2rem;">check_circle</span> ${message}`;
+
+    container.appendChild(toast);
+
+    // 애니메이션이 끝나면 요소 삭제
+    setTimeout(() => {
+        toast.remove();
+    }, 2500);
 }
