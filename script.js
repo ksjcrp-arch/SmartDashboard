@@ -1283,6 +1283,8 @@ async function encryptAndSaveToCloud() {
 
         // 2단계: 파일이 이미 존재한다면 '비밀번호 검증' 절차 수행
         if (files.length > 0) {
+            // 2단계: 기존 파일 읽기 알림 (사라지지 않음)
+            showToast("기존 데이터를 불러와 본인 확인 중입니다...", 0);
             const fileId = files[0].id;
             
             // 기존 파일 내용을 가져옴
@@ -1306,7 +1308,7 @@ async function encryptAndSaveToCloud() {
         }
 
         // 3단계: (새 아이디이거나 비번 검증 통과 시) 데이터 암호화 및 저장 실행
-        showToast("데이터 클라우드 전송 중...");
+        showToast("데이터를 안전하게 암호화하여 전송 중입니다...", 0);
         const localData = localStorage.getItem('yuga_dashboard_v1');
         const themeData = localStorage.getItem('yuga_dashboard_theme');
         const rawContent = JSON.stringify({ data: JSON.parse(localData || '{}'), theme: themeData });
@@ -1445,18 +1447,53 @@ async function restoreFromCloud(fileId) {
     }
 }
 /**
- * 🍞 토스트 팝업 표시 함수
+ * 🍞 토스트 팝업 표시 함수 (지속 시간 조절 가능)
+ * @param {string} message - 표시할 내용
+ * @param {number} duration - 표시 시간(ms). 0을 넣으면 수동으로 지울 때까지 유지.
  */
-function showToast(message) {
+function showToast(message, duration = 2500) {
     const container = document.getElementById('toast-container');
+    
+    // 📍 기존에 떠 있는 토스트가 있다면 즉시 제거 (메시지 교체 효과)
+    container.innerHTML = ''; 
+
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.2rem;">check_circle</span> ${message}`;
-
+    toast.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.2rem;">sync</span> ${message}`;
+    
     container.appendChild(toast);
+    
+    // 📍 duration이 0보다 클 때만 자동으로 삭제
+    if (duration > 0) {
+        setTimeout(() => {
+            if (toast && toast.parentNode === container) {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }
+        }, duration);
+    }
+    
+    // 다음 단계에서 제어할 수 있도록 요소 반환
+    return toast;
+}
 
-    // 애니메이션이 끝나면 요소 삭제
+/**
+ * 🔄 대시보드 새로고침 기능
+ */
+function refreshDashboard() {
+    const icon = document.getElementById('refresh-icon');
+    
+    // 1. 아이콘 회전 애니메이션 적용
+    if (icon) {
+        icon.style.transition = "transform 0.5s ease";
+        icon.style.transform = "rotate(360deg)";
+    }
+
+    // 2. 토스트 메시지 표시
+    showToast("데이터를 새로고침하고 있습니다...", 1000);
+
+    // 3. 0.8초 후 페이지 새로고침 (애니메이션을 보여주기 위함)
     setTimeout(() => {
-        toast.remove();
-    }, 2500);
+        location.reload();
+    }, 800);
 }
