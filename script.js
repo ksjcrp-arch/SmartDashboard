@@ -950,7 +950,7 @@ async function loadConfigFromDrive() {
     const listContainer = document.getElementById('restore-file-list');
 
     if (modal) modal.style.display = 'flex';
-    if (listContainer) listContainer.innerHTML = '<div class="loading-spinner">공유 폴더 확인 중...</div>';
+    if (listContainer) listContainer.innerHTML = '<div class="loading-spinner">데이터 암호화 확인 중...</div>';
 
     try {
         // 📍 공유 폴더 내의 파일만 검색하도록 쿼리 수정
@@ -1060,7 +1060,7 @@ async function encryptAndUploadToDrive() {
         const fileName = prompt("백업 파일 이름:", `yuga_${new Date().toISOString().slice(0, 10)}`);
         if (!fileName) return;
 
-        showToast("암호화 및 공유 폴더 연결 중...");
+        showToast("암호화 및 저장 준비 중...");
 
         // 데이터 암호화 로직
         const localData = localStorage.getItem('yuga_dashboard_v1');
@@ -1093,13 +1093,13 @@ async function encryptAndUploadToDrive() {
         });
 
         if (response.ok) {
-            showToast("공유 폴더에 안전하게 저장되었습니다!");
+            showToast("안전하게 저장되었습니다!");
         } else {
             throw new Error("전송 실패");
         }
     } catch (err) {
         console.error("백업 오류:", err);
-        showToast("공유 폴더 접근 권한을 확인하세요.");
+        showToast("접근 권한을 확인하세요.");
     }
 }
 
@@ -1216,7 +1216,7 @@ async function encryptAndUploadToSharedDrive() {
         });
 
         if (response.ok) {
-            showToast("공유 폴더에 안전하게 저장되었습니다!");
+            showToast("폴더에 안전하게 저장되었습니다!");
         } else {
             throw new Error("전송 실패");
         }
@@ -1300,7 +1300,7 @@ async function fetchCloudFileList() {
     if (!id) return alert("아이디를 입력하세요.");
 
     const listDiv = document.getElementById('cloud-file-list');
-    listDiv.innerHTML = "<div style='text-align:center; padding:10px;'>공유 폴더 조회 중...</div>";
+    listDiv.innerHTML = "<div style='text-align:center; padding:10px;'>조회 중...</div>";
     listDiv.style.display = 'block';
 
     try {
