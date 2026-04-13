@@ -1470,16 +1470,24 @@ async function restoreFromCloud(fileId) {
 function showToast(message, duration = 2500) {
     const container = document.getElementById('toast-container');
     
-    // 📍 기존에 떠 있는 토스트가 있다면 즉시 제거 (메시지 교체 효과)
+    // 📍 튜토리얼 진행 시 이전 메시지를 즉시 지우고 새 메시지로 교체
     container.innerHTML = ''; 
 
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `<span class="material-symbols-rounded" style="font-size:1.2rem;">sync</span> ${message}`;
-    
+    // 튜토리얼은 가이드이므로 info 아이콘을 사용합니다.
+    toast.innerHTML = `<span class="material-symbols-rounded">info</span> ${message}`;
+
+    // 📍 사용자가 직접 클릭해서 끌 수도 있게 설정
+    toast.onclick = () => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
+    };
+
     container.appendChild(toast);
-    
-    // 📍 duration이 0보다 클 때만 자동으로 삭제
+
+    // 📍 핵심: duration이 0보다 클 때만 자동으로 지워지는 타이머를 작동시킵니다.
+    // 0일 때는 클릭하거나 코드가 container를 비울 때까지 영구 유지됩니다.
     if (duration > 0) {
         setTimeout(() => {
             if (toast && toast.parentNode === container) {
@@ -1488,9 +1496,6 @@ function showToast(message, duration = 2500) {
             }
         }, duration);
     }
-    
-    // 다음 단계에서 제어할 수 있도록 요소 반환
-    return toast;
 }
 
 /**
@@ -1527,4 +1532,69 @@ function goToday() {
     renderCalendar(); 
     
     // showToast("오늘 날짜가 포함된 달로 이동했습니다. 📅");
+}
+
+
+/**
+ * 🎓 가이드 전용 오버레이를 사용한 튜토리얼
+ */
+async function startTutorial() {
+    const steps = [
+        { id: "card-timetable", msg: "📅 <b>주간 시간표</b>: 학반이나 전담 과목을 선택하여 이번 주 수업 일정을 확인하세요." },
+        { id: "card-todo", msg: "✅ <b>해야 할 일</b>: 처리해야 할 업무를 등록하고 체크하며 관리할 수 있습니다." },
+        { id: "card-notice", msg: "📢 <b>학년 공지사항</b>: 학년 전달 사항을 실시간으로 확인하고 공유하세요." },
+        { id: "card-quick-launcher", msg: "🚀 <b>바로가기</b>: 나이스, 에듀파인 등 자주 사용하는 사이트를 등록해 빠르게 이동하세요." },
+        { id: "card-calendar", msg: "📌 <b>캘린더</b>: 나이스 학사일정과 개인 일정을 한눈에 파악하고 기록하세요. 날짜를 누르면 개인일정을 등록할 수 있습니다." },
+        { id: "card-info", msg: "🕒 <b>시계 및 날씨</b>: 현재 시각과 유가읍의 날씨, 미세먼지 정보를 실시간으로 제공하며, 테마변경, 배경사진 변경, 개인설정 백업, 대시보드 새로고침, 사용가이드 기능이 있습니다." },
+        { id: "card-meal", msg: "🍱 <b>급식 정보</b>: 오늘의 메뉴와 칼로리 정보를 확인하여 건강한 식생활을 챙기세요." },
+        { id: "card-dday", msg: "⏳ <b>디데이</b>: 방학, 체험학습 등 중요한 학교 행사까지 남은 날짜를 관리하세요." }
+    ];
+
+    const dimBg = document.getElementById('tutorial-dim-bg');
+    const overlay = document.getElementById('tutorial-guide-overlay');
+    const msgBox = document.getElementById('tutorial-msg');
+    const nextBtn = document.getElementById('tutorial-next-btn');
+
+    dimBg.style.display = 'block';
+    overlay.style.display = 'block';
+
+    const resetHighlights = () => {
+        document.querySelectorAll('.card').forEach(c => {
+            c.style.boxShadow = "";
+            c.style.transform = "";
+            c.style.zIndex = "";
+            c.style.position = ""; 
+        });
+    };
+
+    // 📍 1번 수정 사항 반영: [index, step] of steps.entries()
+    for (const [index, step] of steps.entries()) {
+        resetHighlights();
+        const target = document.getElementById(step.id);
+        
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            target.style.transition = "all 0.4s ease";
+            target.style.transform = "scale(1.05)";
+            target.style.boxShadow = "0 0 50px var(--accent)";
+            target.style.position = "relative";
+            target.style.zIndex = "19999"; 
+            
+            // Step 번호 표시 반영
+            msgBox.innerHTML = `<small style="color:var(--accent)">Step ${index + 1}/8</small><br>${step.msg}`;
+        }
+
+        await new Promise(resolve => {
+            const btnHandler = () => {
+                nextBtn.removeEventListener('click', btnHandler);
+                resolve();
+            };
+            nextBtn.addEventListener('click', btnHandler);
+        });
+    }
+
+    resetHighlights();
+    dimBg.style.display = 'none';
+    overlay.style.display = 'none';
+    showToast("가이드가 완료되었습니다! 스마트 대시보드를 즐겨보세요. 🌸", 3000);
 }

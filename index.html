@@ -83,7 +83,7 @@
                 </div>
             </div>
 
-            <div class="card todo-card">
+            <div class="card todo-card" id="card-todo">
                 <div class="card-header">
                     <h4><span class="material-symbols-rounded">check_circle</span> 해야 할 일(To Do List)</h4>
                     <button class="btn-add-launcher" onclick="toggleTodoInput()">
@@ -100,7 +100,7 @@
                 </div>
                 <div id="todo-container" class="todo-list-container"></div>
             </div>
-            <div class="card notice-card" style="position: relative; overflow: hidden;">
+            <div class="card notice-card" id="card-notice" style="position: relative; overflow: hidden;">
                 <div class="card-header">
                     <h4><span class="material-symbols-rounded">notifications_active</span> 학년 공지사항</h4>
                     <div class="header-btns">
@@ -155,7 +155,7 @@
                 <div id="launcher-container" class="launcher-grid"></div>
             </div>
 
-            <div class="card calendar-card">
+            <div class="card calendar-card" id="card-calendar">
                 <div class="card-header">
                     <div class="header-left">
                         <h4 id="calendar-month-year">
@@ -224,6 +224,9 @@
                         </button>
                         <button class="btn-setting-mini" title="새로고침" onclick="refreshDashboard()">
                             <span class="material-symbols-rounded" id="refresh-icon">refresh</span>
+                        </button>
+                        <button class="btn-setting-mini" title="사용 가이드" onclick="startTutorial()">
+                            <span class="material-symbols-rounded">help</span>
                         </button>
                         <!-- <button class="btn-setting-mini" id="btn-edit-mode" title="그리드 편집" onclick="toggleEditMode()">
                             <span class="material-symbols-rounded">settings</span>
@@ -432,6 +435,38 @@
         </div>
     </div>
     <div id="toast-container"></div>
+
+    <div id="tutorial-dim-bg" style="display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            background: rgba(0, 0, 0, 0.7); /* 📍 화면을 70% 어둡게 함 */
+            z-index: 19990; /* 📍 강조될 카드(19999)와 가이드창(20000) 바로 아래 */
+            pointer-events: auto; /* 📍 어두운 부분 클릭 시 가이드 종료 방지 (선택) */">
+    </div>
+    <div id="tutorial-guide-overlay" style="display: none; 
+            position: fixed; 
+            top: 50%;           /* 📍 세로 중앙 */
+            left: 20px;         /* 📍 좌측에서 20px 띄움 */
+            transform: translateY(-50%); /* 📍 세로 정렬 보정 (가로 정렬 보정 제거) */
+            z-index: 20000; 
+            pointer-events: none;">
+
+        <div class="card" style="width: 350px; /* 📍 좌측 배치에 맞게 가로폭을 살짝 줄임 */
+                            background: rgba(0,0,0,0.9); 
+                            border: 2px solid var(--accent); 
+                            padding: 20px; 
+                            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+                            pointer-events: auto; /* 📍 카드는 클릭 가능하게 설정 */">
+
+            <div id="tutorial-msg" style="font-size: 1.1rem; line-height: 1.6; margin-bottom: 20px; color: #fff;">
+            </div>
+
+            <button id="tutorial-next-btn" class="btn-confirm" style="width: 100%; height: 45px; cursor: pointer;">
+                다음 설명
+            </button>
+        </div>
+    </div>
 </body>
 
 </html>
