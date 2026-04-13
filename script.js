@@ -239,18 +239,32 @@ function getPersonalEvent(dateKey) {
     return data.calendarEvents?.find(e => e.date === dateKey);
 }
 
+/**
+ * 📅 캘린더 전용 삽입형 모달 열기
+ */
 function openEventModal(dateKey) {
     selectedDateKey = dateKey;
     const existingEvent = getPersonalEvent(dateKey);
-    document.getElementById('event-modal-title').innerText = `${dateKey} 일정`;
+    
+    // 모달 제목 및 입력값 설정
+    document.getElementById('event-modal-title').innerText = `${dateKey} 일정 추가`;
     const input = document.getElementById('input-event-desc');
     input.value = existingEvent ? existingEvent.desc : "";
+    
+    // 삭제 버튼 노출 여부
     document.getElementById('btn-del-event').style.display = existingEvent ? "block" : "none";
+    
+    // 📍 캘린더 카드 내부의 모달을 표시
     document.getElementById('modal-event').style.display = 'flex';
     input.focus();
 }
 
-function closeEventModal() { document.getElementById('modal-event').style.display = 'none'; }
+/**
+ * 닫기 함수
+ */
+function closeEventModal() { 
+    document.getElementById('modal-event').style.display = 'none';
+}
 
 document.getElementById('btn-save-event').onclick = function () {
     const desc = document.getElementById('input-event-desc').value.trim();
@@ -1270,8 +1284,8 @@ async function encryptAndSaveToCloud() {
     const pw1 = document.getElementById('save-pw1').value;
     const pw2 = document.getElementById('save-pw2').value;
 
-    if (!id || !pw1) return alert("아이디와 비밀번호를 모두 입력하세요.");
-    if (pw1 !== pw2) return alert("비밀번호 재확인이 일치하지 않습니다.");
+    if (!id || !pw1) return showToast("아이디와 비밀번호를 모두 입력하세요.");
+    if (pw1 !== pw2) return showToast("비밀번호 재확인이 일치하지 않습니다.");
 
     showToast("아이디 권한 확인 중...");
 
@@ -1347,7 +1361,7 @@ async function fetchCloudFileList() {
     const id = document.getElementById('load-id').value.trim();
     const pw = document.getElementById('load-pw').value;
 
-    if (!id || !pw) return alert("아이디와 비밀번호를 모두 입력하세요.");
+    if (!id || !pw) return showToast("아이디와 비밀번호를 모두 입력하세요.");
 
     const listDiv = document.getElementById('cloud-file-list');
     listDiv.innerHTML = "<div style='text-align:center; padding:10px; font-size:0.8rem;'>보안 검증 및 목록 조회 중...</div>";
@@ -1498,4 +1512,19 @@ function refreshDashboard() {
     setTimeout(() => {
         location.reload();
     }, 800);
+}
+/**
+ * 📅 달력을 오늘 날짜가 속한 달로 즉시 이동
+ */
+function goToday() {
+    // viewDate를 현재 날짜로 초기화
+    viewDate = new Date(); 
+    
+    // 테스트 중이라면 테스트용 고정 날짜로 설정할 수도 있습니다.
+    // viewDate = new Date(2026, 3, 13); 
+
+    // 달력 다시 그리기
+    renderCalendar(); 
+    
+    // showToast("오늘 날짜가 포함된 달로 이동했습니다. 📅");
 }
