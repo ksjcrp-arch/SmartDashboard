@@ -13,6 +13,28 @@
 </head>
 
 <body>
+    <div id="first-visit-banner" style="display: none; 
+            width: 100%; 
+            background: var(--accent); 
+            color: var(--btn-text); 
+            padding: 10px 20px; 
+            text-align: center; 
+            font-weight: bold; 
+            position: fixed; 
+            top: 0; left: 0; 
+            z-index: 30000; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            justify-content: center; align-items: center; gap: 15px;">
+        <span>👋 스마트 대시보드에 오신 것을 환영합니다! 처음이신가요?</span>
+        <button onclick="startTutorialFromBanner()"
+            style="background: #000; color: #fff; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">
+            사용 가이드 시작하기
+        </button>
+        <button onclick="closeFirstVisitBanner()"
+            style="background: none; border: 1px solid rgba(0,0,0,0.3); color: var(--btn-text); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.85rem;">
+            나중에 하기(우측 상단 <span class="material-symbols-rounded">help</span> 가이드버튼)
+        </button>
+    </div>
     <div class="dashboard-grid">
         <section class="empty-column column" id="col-1">
 

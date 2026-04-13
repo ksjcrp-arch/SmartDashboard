@@ -1058,8 +1058,21 @@ window.addEventListener('DOMContentLoaded', async () => {
     setInterval(fetchNotices, 10000);
     setInterval(highlightCurrentPeriod, 60000);
 
-    // ✨ 자동 로그인 복구 핵심 로직
-    ; // 라이브러리 안정화를 위해 2초 후 실행
+    // 🚩 [수정] 방문 기록 확인
+    const hasVisited = localStorage.getItem('yuga_dashboard_visited');
+
+    if (!hasVisited) {
+        // 📍 1단계: 배너를 띄우기 전에 기록부터 '즉시' 남깁니다.
+        localStorage.setItem('yuga_dashboard_visited', 'true');
+        
+        // 📍 2단계: 브라우저가 기록을 처리할 수 있도록 미세한 시간차(0.1초)를 두고 배너를 노출합니다.
+        setTimeout(() => {
+            const banner = document.getElementById('first-visit-banner');
+            if (banner) {
+                banner.style.display = 'flex';
+            }
+        }, 100);
+    }
 });
 
 /**
@@ -1597,4 +1610,21 @@ async function startTutorial() {
     dimBg.style.display = 'none';
     overlay.style.display = 'none';
     showToast("가이드가 완료되었습니다! 스마트 대시보드를 즐겨보세요. 🌸", 3000);
+}
+
+/**
+ * 🚩 배너에서 가이드 시작
+ */
+function startTutorialFromBanner() {
+    const banner = document.getElementById('first-visit-banner');
+    if (banner) banner.style.display = 'none';
+    startTutorial(); // 8단계 가이드 시작
+}
+
+/**
+ * 🚩 배너 닫기 (방문 기록은 이미 DOMContentLoaded에서 처리됨)
+ */
+function closeFirstVisitBanner() {
+    const banner = document.getElementById('first-visit-banner');
+    if (banner) banner.style.display = 'none';
 }
