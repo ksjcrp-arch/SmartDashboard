@@ -47,13 +47,56 @@
     --bg-image: url('https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=1920&auto=format&fit=crop'); 
 }
 
+/* [Theme 5] 코랄 살구 테마 최적화 버전 */
+:root[data-theme="coral"] {
+    --bg-glass: rgba(255, 255, 255, 0.356); /* 📍 카드를 좀 더 밝고 투명하게 */
+    --accent: #ff9791;                   /* 📍 약간 더 진한 핑크로 가독성 확보 */
+    --accent-hover: #d63031;
+    --text: #58666a;                     /* 📍 글자색을 아주 어두운 회색으로 변경 */
+    --btn-text: #ffffff;
+    --card-border: rgba(255, 118, 117, 0.2); /* 📍 카드 테두리에 코랄색 살짝 가미 */
+    --bg-image: none; 
+    --bg-color: #f7c3b3; 
+}
+
+/* 코랄 테마 전용: 카드 그림자 강화 */
+[data-theme="coral"] .card {
+    box-shadow: 0 8px 24px rgba(214, 48, 49, 0.1); /* 📍 은은한 코랄빛 그림자 */
+    border: 1px solid rgba(255, 255, 255, 0.6);   /* 📍 흰색 테두리로 경계 명확화 */
+}
+
+/* 코랄 테마 전용: 보조 텍스트(날짜 등) 색상 조절 */
+[data-theme="coral"] .d-date, 
+[data-theme="coral"] .air-label, 
+[data-theme="coral"] .date-row {
+    color: #636e72 !important; /* 📍 보조 정보는 중간 회색으로 */
+}
+/* ✅ 통합 및 최적화된 body 설정 */
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    color: var(--text);
+    
+    /* 📍 테마에서 설정한 배경색과 이미지를 우선 적용 */
+    background-color: var(--bg-color);
+    background-image: var(--bg-image);
+    
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    
+    font-size: calc(12px + 0.4vw);
+    font-family: 'Pretendard', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Pretendard', sans-serif; }
 
-body {
-    width: 100vw; height: 100vh; overflow: hidden; color: var(--text);
-    background: url('https://picsum.photos/1920/1080') no-repeat center center / cover;
-    font-size: calc(12px + 0.4vw);
-}
 
 /* 📐 2. 메인 그리드 레이아웃 */
 .dashboard-grid {
@@ -281,7 +324,7 @@ body {
     font-size: 0.7rem;
     color: var(--accent);
     opacity: 0.8;
-    font-weight: 600;
+    font-weight: 1000;
 }
 
 .mini-chips {
@@ -1291,7 +1334,7 @@ body {
 .d-label {
     font-size: 0.95rem;
     font-weight: bold;
-    color: #ffffff;
+    color: var(--accent);
 }
 
 .d-date {
@@ -2037,4 +2080,215 @@ h4 { border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 10
     15% { opacity: 1; transform: translateY(0); }
     85% { opacity: 1; transform: translateY(0); }
     100% { opacity: 0; transform: translateY(-20px); } /* 다시 위로 사라짐 */
+}
+
+/* 📍 코랄 살구 테마 전용 컨트롤러 시인성 보강 */
+[data-theme="coral"] .calendar-controls .btn-meal-nav, 
+[data-theme="coral"] .meal-controls .btn-meal-nav,
+[data-theme="coral"] .btn-meal-nav .material-symbols-rounded {
+    color: #4a4a4a !important; /* 📍 화살표 아이콘을 어두운 회색으로 변경 */
+    opacity: 1 !important;     /* 📍 투명도를 제거하여 또렷하게 표시 */
+}
+
+[data-theme="coral"] .calendar-controls button[onclick="goToday()"] {
+    color: #4a4a4a !important; /* 📍 '오늘' 텍스트 색상 변경 */
+    background: rgba(0, 0, 0, 0.05); /* 📍 버튼 위치가 보이도록 미세한 배경 추가 */
+    border-radius: 4px;
+}
+
+/* 📍 식단표 날짜 텍스트도 가독성을 위해 강조색으로 고정 */
+[data-theme="coral"] #meal-display-date {
+    color: #4a4a4a !important; /* 📍 진한 핑크/코랄 계열로 강조 */
+}
+
+/* 호버 시에는 더 진하게 표현 */
+[data-theme="coral"] .btn-meal-nav:hover .material-symbols-rounded {
+    color: var(--accent) !important;
+    transform: scale(1.2);
+}
+/* 📍 [style.css] 오직 코랄 살구 테마에서만 적용되는 버튼 스타일 */
+
+/* 1. 기본 상태: 테두리를 진한 코랄색으로 강조 */
+[data-theme="coral"] .m-chip {
+    background: rgba(255, 255, 255, 0.2); /* 배경은 살짝 밝게 */
+    border: 0.1px solid #ffaca8;           /* 📍 진한 핑크색 테두리 강제 적용 */
+    color: #2d3436;                       /* 글자색을 어둡게 고정 */
+    font-weight: 600;
+}
+
+/* 2. 마우스 호버 상태 */
+[data-theme="coral"] .m-chip:hover {
+    background: #e84393;                  /* 배경을 테두리 색으로 채움 */
+    color: #ffffff;                       /* 글자는 흰색으로 반전 */
+    box-shadow: 0 4px 12px rgba(232, 67, 147, 0.25);
+}
+
+/* 3. 선택된(Active) 상태 */
+[data-theme="coral"] .m-chip.active {
+    background: #d63031;                  /* 더 진한 붉은 톤으로 강조 */
+    border-color: #d63031;
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/* 📍 보너스: '학년/반', '교과 전담' 라벨도 살구 테마에서만 진하게 표시 */
+[data-theme="coral"] .selector-label {
+    color: #b36b5d !important;            /* 차분하면서도 선명한 브라운 코랄 */
+    opacity: 1;
+    font-weight: 700;
+}
+
+
+
+/* 📍 [style.css] 코랄 테마 전용: 주간 시간표 모달 색상 최적화 */
+
+/* 1. 모달 전체 배경 및 투명도 조절 */
+[data-theme="coral"] #modal-timetable .modal-content {
+    background: rgb(255, 177, 177) !important; /* 밝은 흰색 배경으로 교체 */
+    border: 1px solid var(--accent);
+    color: #ffffff; /* 글자색을 어두운 차콜로 */
+}
+
+/* 2. 테이블 영역 배경 제거 및 선명도 조절 */
+[data-theme="coral"] .weekly-table-wrapper {
+    background-color: #ffffff !important; /* 어두운 배경을 흰색으로 변경 */
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 3. 테이블 헤더(요일) 색상 변경 */
+[data-theme="coral"] .weekly-table thead th {
+    background-color: #fceae5 !important; /* 연한 코랄빛 헤더 배경 */
+    color:  #ff9791 !important;           /* 진한 핑크색 요일 글자 */
+}
+
+/* 4. 테이블 왼쪽 인덱스(교시) 색상 변경 */
+[data-theme="coral"] .weekly-table tbody th,
+[data-theme="coral"] .weekly-table thead th:first-child {
+    background-color: #fdf2f0 !important; /* 교시 칸은 더 연한 코랄색 */
+    color: #b36b5d !important;           /* 차분한 브라운 코랄 글자 */
+}
+
+/* 5. 테이블 내부 칸(td) 선 색상 및 글자색 */
+[data-theme="coral"] .weekly-table td {
+    border-bottom: 1px solid #fceae5 !important;
+    border-right: 1px solid #fceae5 !important;
+    color: #4a4a4a !important;
+}
+
+/* 6. 모달 제목 및 닫기 버튼 보정 */
+[data-theme="coral"] .modal-top-row h2 {
+    color: #2d3436 !important;
+}
+
+[data-theme="coral"] .btn-close {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: #2d3436 !important;
+}
+/* 📍 [style.css] 코랄 테마 전용: 모달 내 칩 버튼(학년/반, 전담) 스타일 */
+
+/* 1. 기본 상태: 배경은 더 밝게, 테두리는 진하게 */
+[data-theme="coral"] #modal-timetable .chip {
+    background-color: rgba(255, 255, 255, 0.6) !important; /* 배경을 더 밝게 */
+    border: 1.5px solid #e84393 !important;           /* 📍 진한 코랄 테두리 강제 적용 */
+    color: #4a4a4a !important;                       /* 글자색을 어두운 회색으로 */
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+/* 2. 마우스 호버 상태 */
+[data-theme="coral"] #modal-timetable .chip:hover {
+    background-color: #e84393 !important;             /* 배경을 코랄색으로 채움 */
+    color: #ffffff !important;                        /* 글자는 흰색으로 반전 */
+}
+
+/* 3. 선택된(Active) 상태: 음악 버튼처럼 선택되었을 때 */
+[data-theme="coral"] #modal-timetable .chip.active {
+    background-color: #d63031 !important;             /* 더 진한 레드로 강조 */
+    border-color: #d63031 !important;
+    color: #ffffff !important;
+    font-weight: 800;
+    box-shadow: 0 0 10px rgba(214, 48, 49, 0.3);
+}
+
+/* 📍 보너스: '학년/반', '교과 전담' 라벨 글자색 보정 */
+[data-theme="coral"] #modal-timetable .filter-label {
+    color: #b36b5d !important;                        /* 배경보다 진한 브라운 코랄 */
+    font-weight: 800;
+    opacity: 1;
+}
+/* 📍 [style.css] 코랄 테마 전용: 미세먼지 수치 박스 디자인 개선 */
+
+[data-theme="coral"] .air-details-grid {
+    /* 📍 검은색 배경 대신, 배경색보다 살짝 진한 코랄/살구톤 투명 배경 적용 */
+    background: rgba(255, 0, 123, 0) !important; 
+    
+    /* 테두리를 은은하게 넣어 영역을 구분합니다 */
+    border: 1px solid rgb(255, 255, 255) !important;
+}
+
+/* 📍 수치 글자색이 너무 검다면 조금 더 부드러운 차콜로 조절 */
+[data-theme="coral"] .air-item-val {
+    color: #3d3d3d !important;
+}
+
+/* 📍 '미세', '초미세' 라벨 글자색 보정 */
+[data-theme="coral"] .air-item-label {
+    color: #b36b5d !important;
+    font-weight: 700;
+}
+/* 📍 [style.css] 코랄 테마 전용: 미니 시간표(mini-weekly-table) 시인성 개선 */
+
+/* 1. 상단 요일(th) 글자색 강화 */
+[data-theme="coral"] .mini-weekly-table th {
+    color: #b36b5d !important;      /* 📍 진한 코랄/핑크색으로 변경 */
+    font-weight: 800 !important;    /* 글자를 더 두껍게 */
+    opacity: 1 !important;
+}
+
+/* 2. 왼쪽 교시 숫자(tbody th) 글자색 강화 */
+[data-theme="coral"] .mini-weekly-table tbody th {
+    color: #b36b5d !important;      /* 📍 차분하지만 선명한 브라운 코랄 */
+    font-weight: 800 !important;
+    opacity: 1 !important;
+}
+
+/* 3. 과목 글자색 (가독성을 위해 딥 차콜로 고정) */
+[data-theme="coral"] .mini-weekly-table td {
+    color: #2d3436 !important;      /* 어두운 회색으로 확실히 보이게 */
+    font-weight: 600;
+}
+
+/* 4. 하단 '다른 학반 선택하기' 버튼 보정 */
+[data-theme="coral"] .btn-reschedule {
+    color: #4a4a4a !important;      /* 흰색 대신 어두운 색으로 변경 */
+    font-weight: bold;
+    opacity: 0.8 !important;
+}
+/* 📍 [style.css] 코랄 테마 전용: 선택된 학반 이름(예: (6-9)) 색상 강화 */
+
+[data-theme="coral"] #selected-target-name {
+    /* 📍 연한 핑크 대신 확실히 구분되는 진한 코랄색 적용 */
+    color: var(--accent); 
+    
+    /* 📍 흐릿하지 않게 불투명도를 1로 고정하고 글자를 약간 더 두껍게 */
+    opacity: 1 !important;
+    font-weight: 700 !important;
+    
+    /* 제목과 너무 붙어 보이지 않게 여백 미세 조정 */
+    margin-left: 8px !important;
+}
+/* 📍 [style.css] 코랄 테마 전용: 미니 시간표 과목명 색상 타이틀과 통일 */
+
+[data-theme="coral"] .mini-weekly-table td {
+    /* 📍 타이틀 글자색인 어두운 차콜/남색 계열로 변경 */
+    color: #2d3436 !important; 
+    
+    /* 📍 글자를 조금 더 선명하게 보이도록 두께 조절 */
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+/* 📍 만약 '특별과목(영어, 음악 등)'에 별도 색상이 들어간다면 그 부분도 통일 */
+[data-theme="coral"] .mini-weekly-table td[style*="color"] {
+    color: #525a5c !important;
 }

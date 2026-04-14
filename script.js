@@ -622,16 +622,28 @@ async function displayMeal() {
 function changeMealDate(offset) { currentMealDate.setDate(currentMealDate.getDate() + offset); displayMeal(); }
 
 function changeRandomBackground() {
+// 📍 현재 테마가 'coral'(무지 테마)인지 확인합니다.
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    
+    if (currentTheme === 'coral') {
+        showToast("🎨 무지 테마에서는 배경 이미지를 변경할 수 없습니다.", 2000);
+        return; // 함수 종료
+    }
+
     const url = `https://picsum.photos/1920/1080?random=${Math.random()}`;
     document.body.style.background = `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('${url}') no-repeat center center / cover fixed`;
 }
 
 function toggleTheme() {
-    const themes = ['dark', 'navy', 'forest', 'pink'];
+    const themes = ['dark', 'navy', 'forest', 'pink', 'coral'];
     const cur = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = themes[(themes.indexOf(cur) + 1) % themes.length];
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('yuga_dashboard_theme', next);
+
+    // 📍 [핵심 수정] 모든 테마 전환 시, 수동으로 입혀진 배경 스타일을 초기화합니다.
+    // 이렇게 해야 coral 테마의 '무지 배경'이나 다른 테마의 '기본 이미지'가 정상 출력됩니다.
+    document.body.style.background = "";
 }
 
 function initTheme() {
@@ -1057,6 +1069,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     fetchNotices();
     setInterval(fetchNotices, 10000);
     setInterval(highlightCurrentPeriod, 60000);
+
+    // 📍 [보완] 새로고침 시 코랄 테마라면 배경 이미지를 강제로 비웁니다.
+    if (document.documentElement.getAttribute('data-theme') === 'coral') {
+        document.body.style.background = "";
+    }
 
     // 🚩 [수정] 방문 기록 확인
     const hasVisited = localStorage.getItem('yuga_dashboard_visited');
