@@ -2292,3 +2292,99 @@ h4 { border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 10
 [data-theme="coral"] .mini-weekly-table td[style*="color"] {
     color: #525a5c !important;
 }
+/* 📍 [style.css] 코랄 테마 전용: 백업 모달 고휘도 화사함 버전 */
+
+/* 1. 모달 전체: 어두운 배경을 완전히 걷어내고 밝은 살구빛 화이트로 */
+[data-theme="coral"] #modal-backup .small-modal {
+    background: rgba(255, 245, 240, 0.98) !important; /* 📍 거의 불투명에 가까운 밝은 배경 */
+    backdrop-filter: blur(20px);
+    border: 3px solid #ff9791 !important;           /* 📍 더 두껍고 선명한 코랄 테두리 */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);     /* 📍 그림자를 부드럽게 키워 입체감 부여 */
+}
+
+/* 2. 제목 줄: 아이콘과 텍스트를 진한 코랄색으로 */
+[data-theme="coral"] #modal-backup .modal-header h4 {
+    color: #ffe1e1 !important;                       /* 📍 진한 핑크색으로 제목 강조 */
+    font-weight: 800 !important;
+}
+
+/* 3. 설명 문구: 가독성을 위해 명도를 조절한 딥 차콜 */
+[data-theme="coral"] #modal-backup .user-info-text {
+    color: #ffefef !important;                       /* 📍 선명하게 읽히는 어두운 회색 */
+    line-height: 1.6;
+    font-weight: 500;
+}
+
+/* 4. 버튼 디자인: 입체감을 위해 그라데이션과 테두리 추가 */
+[data-theme="coral"] #modal-backup .btn-confirm {
+    background: linear-gradient(135deg, #ff9791, #e84393) !important; /* 📍 생동감 넘치는 코랄 그라데이션 */
+    color: #ffe4e4 !important;
+    border: none;
+    font-size: 0.9rem !important;
+    box-shadow: 0 4px 15px rgba(232, 67, 147, 0.3);
+}
+
+[data-theme="coral"] #modal-backup .btn-cancel {
+    background: #ffffff !important;                  /* 📍 깨끗한 화이트 배경 */
+    color: #ff8282 !important;                       /* 📍 글자는 코랄색으로 */
+    border: 1px solid #ffffff !important;
+    font-weight: 700;
+}
+
+/* 5. 입력 필드: 배경과 확실히 분리되도록 내부 그림자 추가 */
+[data-theme="coral"] #modal-backup input {
+    background: #ff8aa4cf !important;
+    border: 1.5px solid #ff9791 !important;
+    color: #2d3436 !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 6. 닫기 버튼: 코랄 테마에 어울리는 핑크톤 */
+[data-theme="coral"] #modal-backup .btn-close {
+    color: #ffb1b1 !important;
+}
+
+/* [style.css] 코랄 테마 전용: 백업 상태 메시지 색상 강제 교체 */
+
+/* 📍 1. ID와 클래스를 모두 동원하여 가장 강력하게 우선순위 부여 */
+[data-theme="coral"] #backup-status,
+[data-theme="coral"] .status-msg,
+[data-theme="coral"] #modal-backup p,
+[data-theme="coral"] div[id*="status"] {
+    /* 📍 배경이 어두우니 무조건 흰색으로 강제 고정 */
+    color: #ffffff !important; 
+    
+    /* 📍 투명도가 낮아 안 보일 수 있으니 투명도 제거 */
+    opacity: 1 !important;
+    
+    /* 📍 글자를 더 굵게 만들어서 확실히 보이게 함 */
+    font-weight: 800 !important;
+    
+    /* 약간의 그림자를 주어 가독성을 극대화함 */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+    
+    display: block !important;
+    margin: 15px auto !important;
+    text-align: center !important;
+}
+/* [style.css] 코랄 테마 전용: 동적 생성 백업 안내 문구 가독성 해결 */
+
+/* 📍 1. fetchCloudFileList 함수에서 생성하는 안내 및 에러 메시지 타격 */
+[data-theme="coral"] #cloud-file-list div {
+    color: #ffffff !important;           /* 📍 글자색 무조건 흰색 */
+    opacity: 1 !important;               /* 투명도 제거 */
+    font-weight: 700 !important;         /* 글자 두껍게 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important; /* 그림자로 가독성 확보 */
+}
+
+/* 📍 2. '아이디 다시 입력' 버튼 텍스트도 흰색으로 보정 */
+[data-theme="coral"] #cloud-file-list .btn-cancel {
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+    text-decoration: underline;          /* 클릭 가능한 느낌 부여 */
+}
+
+/* 📍 3. 입력창(input) 내부 글자색도 흰색으로 통일 */
+[data-theme="coral"] #modal-backup .inline-input-box input {
+    color: #ffffff !important;           /* 📍 12312 등 입력 내용이 잘 보이게 함 */
+}
