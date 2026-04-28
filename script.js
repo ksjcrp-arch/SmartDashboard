@@ -245,15 +245,15 @@ function getPersonalEvent(dateKey) {
 function openEventModal(dateKey) {
     selectedDateKey = dateKey;
     const existingEvent = getPersonalEvent(dateKey);
-    
+
     // 모달 제목 및 입력값 설정
     document.getElementById('event-modal-title').innerText = `${dateKey} 일정 추가`;
     const input = document.getElementById('input-event-desc');
     input.value = existingEvent ? existingEvent.desc : "";
-    
+
     // 삭제 버튼 노출 여부
     document.getElementById('btn-del-event').style.display = existingEvent ? "block" : "none";
-    
+
     // 📍 캘린더 카드 내부의 모달을 표시
     document.getElementById('modal-event').style.display = 'flex';
     input.focus();
@@ -262,7 +262,7 @@ function openEventModal(dateKey) {
 /**
  * 닫기 함수
  */
-function closeEventModal() { 
+function closeEventModal() {
     document.getElementById('modal-event').style.display = 'none';
 }
 
@@ -303,13 +303,29 @@ function toggleDDayInput() {
     inputField.style.display = (inputField.style.display === 'none') ? 'block' : 'none';
 }
 
+/**
+ * [5] 디데이 기능 - 날짜 계산 로직 수정
+ */
 function calculateDDay(targetDate) {
+    // 1. 오늘 날짜의 자정(00:00:00) 설정
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const target = new Date(`${targetDate.substring(0, 4)}-${targetDate.substring(4, 6)}-${targetDate.substring(6, 8)}`);
+
+    // 2. 타겟 날짜 생성 (UTC 시차 문제를 방지하기 위해 하이픈 대신 슬래시(/) 사용 또는 연,월,일 분리)
+    const year = parseInt(targetDate.substring(0, 4));
+    const month = parseInt(targetDate.substring(4, 6)) - 1; // 월은 0부터 시작
+    const day = parseInt(targetDate.substring(6, 8));
+
+    const target = new Date(year, month, day);
+    target.setHours(0, 0, 0, 0);
+
+    // 3. 차이 계산 (밀리초 -> 일 단위)
     const diff = target - today;
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days === 0 ? "D-Day" : (days > 0 ? `D-${days}` : `D+${Math.abs(days)}`);
+    const days = Math.round(diff / (1000 * 60 * 60 * 24));
+
+    // 4. 결과 반환
+    if (days === 0) return "D-Day";
+    return days > 0 ? `D-${days}` : `D+${Math.abs(days)}`;
 }
 
 function renderDDayItem(title, dateInput) {
@@ -622,9 +638,9 @@ async function displayMeal() {
 function changeMealDate(offset) { currentMealDate.setDate(currentMealDate.getDate() + offset); displayMeal(); }
 
 function changeRandomBackground() {
-// 📍 현재 테마가 'coral'(무지 테마)인지 확인합니다.
+    // 📍 현재 테마가 'coral'(무지 테마)인지 확인합니다.
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    
+
     if (currentTheme === 'coral') {
         showToast("🎨 무지 테마에서는 배경 이미지를 변경할 수 없습니다.", 2000);
         return; // 함수 종료
@@ -635,7 +651,7 @@ function changeRandomBackground() {
 }
 
 function toggleTheme() {
-    const themes = ['dark', 'navy', 'forest', 'pink', 'coral'];
+    const themes = ['dark', 'navy', 'forest', 'pink', 'cobalt', 'coral'];
     const cur = document.documentElement.getAttribute('data-theme') || 'dark';
     const next = themes[(themes.indexOf(cur) + 1) % themes.length];
     document.documentElement.setAttribute('data-theme', next);
@@ -1081,7 +1097,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!hasVisited) {
         // 📍 1단계: 배너를 띄우기 전에 기록부터 '즉시' 남깁니다.
         localStorage.setItem('yuga_dashboard_visited', 'true');
-        
+
         // 📍 2단계: 브라우저가 기록을 처리할 수 있도록 미세한 시간차(0.1초)를 두고 배너를 노출합니다.
         setTimeout(() => {
             const banner = document.getElementById('first-visit-banner');
@@ -1332,7 +1348,7 @@ async function encryptAndSaveToCloud() {
             // 2단계: 기존 파일 읽기 알림 (사라지지 않음)
             showToast("기존 데이터를 불러와 본인 확인 중입니다...", 0);
             const fileId = files[0].id;
-            
+
             // 기존 파일 내용을 가져옴
             const readRes = await fetch(CLOUD_API_URL, {
                 method: 'POST',
@@ -1344,7 +1360,7 @@ async function encryptAndSaveToCloud() {
             try {
                 const bytes = CryptoJS.AES.decrypt(oldEncryptedData.trim(), pw1);
                 const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
-                
+
                 if (!decryptedStr) throw new Error("PW_FAIL");
                 // 복호화 성공 시, 본인 확인 완료된 것으로 간주하고 진행
             } catch (e) {
@@ -1363,9 +1379,9 @@ async function encryptAndSaveToCloud() {
 
         const saveRes = await fetch(CLOUD_API_URL, {
             method: 'POST',
-            body: JSON.stringify({ 
-                mode: 'save', 
-                userId: id, 
+            body: JSON.stringify({
+                mode: 'save',
+                userId: id,
                 content: encrypted,
                 force: true // 📍 검증을 마쳤으므로 덮어쓰기 허용
             })
@@ -1420,29 +1436,29 @@ async function fetchCloudFileList() {
         try {
             const bytes = CryptoJS.AES.decrypt(encryptedData.trim(), pw);
             const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
-            
+
             // 복호화 결과가 없으면 비번이 틀린 것임
             if (!decryptedStr) throw new Error("AUTH_FAIL");
 
             // 3. 검증 성공 시에만 인증창을 숨기고 목록을 렌더링합니다.
             document.getElementById('load-auth-area').style.display = 'none';
-            
+
             listDiv.innerHTML = files.map(f => `
                 <div class="restore-item" onclick="restoreFromCloud('${f.id}')" style="padding:12px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.85rem; display:flex; justify-content:space-between; align-items:center;">
                     <span>${new Date(f.date).toLocaleString()} 백업본</span>
                     <span class="material-symbols-rounded" style="color:var(--accent);">download</span>
                 </div>
             `).join('') + `<button class="btn-cancel" onclick="showStep('step-load')" style="width:100%; margin-top:10px; font-size:0.75rem; border:none; background:none; color:white; cursor:pointer;">↻ 아이디 다시 입력</button>`;
-            
+
             showToast("인증되었습니다. 복구할 파일을 선택하세요.");
 
         } catch (authError) {
             // 비번이 틀리면 목록을 보여주지 않고 에러 메시지 출력
             listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c; font-size:0.8rem;'>비밀번호가 일치하지 않아 목록을 볼 수 없습니다.</div>";
         }
-    } catch (e) { 
+    } catch (e) {
         console.error(e);
-        listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c; font-size:0.8rem;'>조회 실패: 네트워크 상태를 확인하세요.</div>"; 
+        listDiv.innerHTML = "<div style='text-align:center; padding:10px; color:#ff4b5c; font-size:0.8rem;'>조회 실패: 네트워크 상태를 확인하세요.</div>";
     }
 }
 
@@ -1499,9 +1515,9 @@ async function restoreFromCloud(fileId) {
  */
 function showToast(message, duration = 2500) {
     const container = document.getElementById('toast-container');
-    
+
     // 📍 튜토리얼 진행 시 이전 메시지를 즉시 지우고 새 메시지로 교체
-    container.innerHTML = ''; 
+    container.innerHTML = '';
 
     const toast = document.createElement('div');
     toast.className = 'toast';
@@ -1533,7 +1549,7 @@ function showToast(message, duration = 2500) {
  */
 function refreshDashboard() {
     const icon = document.getElementById('refresh-icon');
-    
+
     // 1. 아이콘 회전 애니메이션 적용
     if (icon) {
         icon.style.transition = "transform 0.5s ease";
@@ -1553,14 +1569,14 @@ function refreshDashboard() {
  */
 function goToday() {
     // viewDate를 현재 날짜로 초기화
-    viewDate = new Date(); 
-    
+    viewDate = new Date();
+
     // 테스트 중이라면 테스트용 고정 날짜로 설정할 수도 있습니다.
     // viewDate = new Date(2026, 3, 13); 
 
     // 달력 다시 그리기
-    renderCalendar(); 
-    
+    renderCalendar();
+
     // showToast("오늘 날짜가 포함된 달로 이동했습니다. 📅");
 }
 
@@ -1593,7 +1609,7 @@ async function startTutorial() {
             c.style.boxShadow = "";
             c.style.transform = "";
             c.style.zIndex = "";
-            c.style.position = ""; 
+            c.style.position = "";
         });
     };
 
@@ -1601,15 +1617,15 @@ async function startTutorial() {
     for (const [index, step] of steps.entries()) {
         resetHighlights();
         const target = document.getElementById(step.id);
-        
+
         if (target) {
             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             target.style.transition = "all 0.4s ease";
             target.style.transform = "scale(1.05)";
             target.style.boxShadow = "0 0 50px var(--accent)";
             target.style.position = "relative";
-            target.style.zIndex = "19999"; 
-            
+            target.style.zIndex = "19999";
+
             // Step 번호 표시 반영
             msgBox.innerHTML = `<small style="color:var(--accent)">Step ${index + 1}/8</small><br>${step.msg}`;
         }
