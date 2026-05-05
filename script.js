@@ -15,7 +15,10 @@ const SHARED_FOLDER_ID = '1l12mPq1kJu_BzHLuDInPWxVSoe8NcRIJ'; // 📍 필수 수
 // 상수 설정
 const ATPT_CODE = 'D10';   // 대구교육청
 const SCHUL_CODE = '7281024'; // 유가초등학교
-const GAS_APP_URL = "https://script.google.com/macros/s/AKfycbzDA594izK8NFJN3Y1auNtRYwJ6x_Vwm4Y-9qDBv1wXbJSZ2dLMFUzneZNPm4lS8bP3gQ/exec";
+//const GAS_APP_URL = "https://script.google.com/macros/s/AKfycbzDA594izK8NFJN3Y1auNtRYwJ6x_Vwm4Y-9qDBv1wXbJSZ2dLMFUzneZNPm4lS8bP3gQ/exec";
+// [script.js 상단 설정 구역]
+const NOTICE_GAS_URL = "https://script.google.com/macros/s/AKfycbwfxVR_NWeP5Ekh74dM_ib7Lhd78to0ijswqcyeapK-AelSfGz8YdS96d1Z5uyUyxHv/exec"; // 📍 공지사항 전용
+const TIMETABLE_GAS_URL = "https://script.google.com/macros/s/AKfycbzDA594izK8NFJN3Y1auNtRYwJ6x_Vwm4Y-9qDBv1wXbJSZ2dLMFUzneZNPm4lS8bP3gQ/exec"; // 📍 시간표 전용
 const SPREADSHEET_ID = '1i13Yl1giTW1-LW7OQHxg7uUu11NVQnKQlf-PJgViOnE';
 
 /**
@@ -372,7 +375,7 @@ async function selectView(mode, value, btn) {
 
 async function fetchNotices() {
     try {
-        const response = await fetch(GAS_APP_URL);
+        const response = await fetch(NOTICE_GAS_URL); // 📍 공지사항 주소 사용
         const notices = await response.json();
         const container = document.getElementById('notice-display-area');
         if (notices.length === 0) {
@@ -391,7 +394,7 @@ async function submitNotice() {
     textInput.value = ''; closeNoticeModal();
     container.innerHTML = `<div class="notice-waiting"><span class="material-symbols-rounded loading-spinner">sync</span><p>공지사항을 기록 중입니다...</p></div>`;
     try {
-        const response = await fetch(GAS_APP_URL, { method: 'POST', body: text });
+        const response = await fetch(NOTICE_GAS_URL, { method: 'POST', body: text }); // 📍 공지사항 주소 사용
         if (response.ok) fetchNotices();
     } catch (e) { container.innerHTML = `<p class="error-text">기록에 실패했습니다.</p>`; }
 }
