@@ -15,7 +15,7 @@ const SHARED_FOLDER_ID = '1l12mPq1kJu_BzHLuDInPWxVSoe8NcRIJ'; // 📍 필수 수
 // 상수 설정
 const ATPT_CODE = 'D10';   // 대구교육청
 const SCHUL_CODE = '7281024'; // 유가초등학교
-const GAS_APP_URL = "https://script.google.com/macros/s/AKfycbwfxVR_NWeP5Ekh74dM_ib7Lhd78to0ijswqcyeapK-AelSfGz8YdS96d1Z5uyUyxHv/exec";
+const GAS_APP_URL = "https://script.google.com/macros/s/AKfycbzDA594izK8NFJN3Y1auNtRYwJ6x_Vwm4Y-9qDBv1wXbJSZ2dLMFUzneZNPm4lS8bP3gQ/exec";
 const SPREADSHEET_ID = '1i13Yl1giTW1-LW7OQHxg7uUu11NVQnKQlf-PJgViOnE';
 
 /**
@@ -420,22 +420,37 @@ async function refreshTimetableData() {
         } else {
             const res = await fetch(FETCH_URL);
             const csvData = await res.text();
+            // CSV 파싱 시 따옴표와 공백을 더 정밀하게 제거
             rows = csvData.split('\n').map(row => row.split(',').map(cell => cell.replace(/^"(.*)"$/, '$1').trim()));
             cachedSheetData = rows; lastSheetName = sheetName;
         }
 
+        // 7교시까지 대응하기 위해 배열 길이를 7로 설정
         let timetableData = Array.from({ length: 7 }, () => Array(5).fill('-'));
+
         rows.forEach((row, rIdx) => {
             if (rIdx < 1) return;
             const period = parseInt(row[0]);
             if (!period || period > 7) return;
+
             for (let day = 0; day < 5; day++) {
                 const startCol = 1 + (day * 5);
+                // [script.js 수정 위치: refreshTimetableData 함수 내부]
                 if (currentMode === 'class') {
                     for (let sIdx = 0; sIdx < 5; sIdx++) {
-                        if (row[startCol + sIdx] === currentTarget) timetableData[period - 1][day] = SPECIAL_LIST[sIdx];
+                        // 1. 셀 값을 가져옵니다. (슬래시(/)는 쌍따옴표가 붙지 않아 깨끗하게 들어옵니다.)
+                        let cellValue = (row[startCol + sIdx] || "").toString();
+
+                        // 2. [슬래시 대응 로직] 슬래시를 기준으로 쪼개고 앞뒤 공백을 제거합니다.
+                        const classList = cellValue.split('/').map(item => item.trim());
+
+                        // 3. 현재 선택된 반이 목록에 있는지 확인합니다.
+                        if (classList.includes(currentTarget.trim())) {
+                            timetableData[period - 1][day] = SPECIAL_LIST[sIdx];
+                        }
                     }
                 } else {
+                    // 전담 뷰: 강사/영1 등 전담 선생님 화면에서는 '6-9, 6-10' 전체 노출
                     const subIdx = SPECIAL_LIST.indexOf(currentTarget);
                     timetableData[period - 1][day] = row[startCol + subIdx] || '-';
                 }
@@ -444,7 +459,7 @@ async function refreshTimetableData() {
         renderMiniWeeklyTable(timetableData);
         renderWeeklyTable(timetableData);
         highlightCurrentPeriod();
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("시간표 로딩 에러:", e); }
 }
 
 function renderMiniWeeklyTable(data) {

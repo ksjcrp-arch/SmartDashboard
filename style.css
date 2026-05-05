@@ -46,6 +46,32 @@
     /* 📍 배경화면: 몽환적인 노을이나 새벽녘의 핑크빛 하늘 이미지 */
     --bg-image: url('https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?q=80&w=1920&auto=format&fit=crop'); 
 }
+/* [style.css] Theme: 코발트 블루 (무지 배경) 추가 */
+
+:root[data-theme="cobalt"] {
+    --bg-image: none;                      /* 📍 이미지 제거 (무지 배경) */
+    --bg-color: #6a89a7;                   /* 📍 진한 코발트 블루 단색 배경 */
+    
+    --bg-glass: #384959;    /* 배경보다 살짝 밝은 카드 톤 */
+    --accent: #bdddfc;                    /* 밝은 하늘색 포인트 */
+    --accent-hover: #3b82f6;
+    --text: #eff6ff;
+    --btn-text: #ffffff;
+    --card-border: rgba(96, 165, 250, 0.25);
+}
+
+/* 📍 코발트 테마 전용: 배경색 강제 적용 */
+[data-theme="cobalt"] body {
+    background-color: var(--bg-color) !important;
+    background-image: none !important;
+}
+
+/* 📍 코발트 테마 전용: 시간표 하이라이트 가독성 보정 */
+[data-theme="cobalt"] .current-period {
+    background: var(--accent) !important;
+    color: #1e3a8a !important;            /* 배경색과 대비되는 진한 글자색 */
+    font-weight: 800 !important;
+}
 
 /* [Theme 5] 코랄 살구 테마 최적화 버전 */
 :root[data-theme="coral"] {
